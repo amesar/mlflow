@@ -28,29 +28,29 @@ public class ApiClient {
         httpHost = new HttpHost(host, port, "http");
     }
 
-    public CreateExperimentResult createExperiment(String experimentName) throws Exception {
+    public CreateExperimentResponse createExperiment(String experimentName) throws Exception {
         CreateExperimentRequest request = new CreateExperimentRequest();
         request.setName(experimentName);
         String ijson = mapper.writeValueAsString(request);
         String ojson = post("experiments/create",ijson);
-        return mapper.readValue(ojson, CreateExperimentResult.class);
+        return mapper.readValue(ojson, CreateExperimentResponse.class);
     }
 
     public List<ExperimentSummary> listExperiments() throws Exception {
         String ijson = get("experiments/list");
-        return mapper.readValue(ijson, ListExperimentsResultWrapper.class).getExperiments();
+        return mapper.readValue(ijson, ListExperimentsResponseWrapper.class).getExperiments();
     }
 
-    public GetExperimentResult getExperiment(String experimentId) throws Exception {
+    public GetExperimentResponse getExperiment(String experimentId) throws Exception {
         String path = "experiments/get?experiment_id="+experimentId;
         String ijson = get(path);
-        return mapper.readValue(ijson, GetExperimentResult.class);
+        return mapper.readValue(ijson, GetExperimentResponse.class);
     }
 
-    public CreateRunResult createRun(CreateRunRequest request) throws Exception {
+    public CreateRunResponse createRun(CreateRunRequest request) throws Exception {
         String ijson = mapper.writeValueAsString(request);
         String ojson = post("runs/create",ijson);
-        return mapper.readValue(ojson, CreateRunResultWrapper.class).getRun().getInfo();
+        return mapper.readValue(ojson, CreateRunResponseWrapper.class).getRun().getInfo();
     }
 
     public void updateRun(UpdateRunRequest request) throws Exception {
@@ -58,10 +58,10 @@ public class ApiClient {
         post("runs/update",ijson);
     }
 
-    public GetRunResult getRun(String runUuid) throws Exception {
+    public GetRunResponse getRun(String runUuid) throws Exception {
         String path = "runs/get?run_uuid="+runUuid;
         String ojson = get(path);
-        return mapper.readValue(ojson, GetRunResultWrapper.class).getRun();
+        return mapper.readValue(ojson, GetRunResponseWrapper.class).getRun();
     }
 
     public void logParameter(String runUuid, String key, String value) throws Exception {

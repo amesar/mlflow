@@ -3,7 +3,7 @@ package com.databricks.mlflow.client.objects;
 import java.util.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class GetRunResult {
+public class GetRunResponse {
     @JsonProperty("info")
     private RunInfo info; 
     public RunInfo getInfo() { return info; }

@@ -1,18 +1,12 @@
 package com.databricks.mlflow.client.objects;
 
-import java.util.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class GetExperimentResult {
-    @JsonProperty("experiment")
+public class GetExperimentResponseWrapper {
     private ExperimentSummary experiment; 
+    @JsonProperty("experiment")
     public ExperimentSummary getExperiment() { return experiment; }
     public void setExperiment(ExperimentSummary experiment) { this.experiment= experiment; }
-
-    private List<RunInfo> runs;
-    @JsonProperty("runs")
-    public List<RunInfo> getRuns() { return runs; }
-    public void setRuns(List<RunInfo> runs) { this.runs = runs; }
  
     @Override
     public String toString() {

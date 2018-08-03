@@ -2,7 +2,7 @@ package com.databricks.mlflow.client.objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class CreateRunResult {
+public class CreateRunResponse {
     private String runUuid; 
     @JsonProperty("run_uuid")
     public String getRunUuid() { return runUuid; }
