@@ -37,14 +37,43 @@ public class ApiClient {
     }
 
     public List<ExperimentSummary> listExperiments() throws Exception {
-        String str = get("experiments/list");
-        return mapper.readValue(str, ListExperimentsResultWrapper.class).getExperiments();
+        String ijson = get("experiments/list");
+        return mapper.readValue(ijson, ListExperimentsResultWrapper.class).getExperiments();
     }
 
-    public ExperimentSummary getExperiment(String experimentId) throws Exception {
+    public GetExperimentResult getExperiment(String experimentId) throws Exception {
         String path = "experiments/get?experiment_id="+experimentId;
-        String str = get(path);
-        return mapper.readValue(str, GetExperimentResultWrapper.class).getExperiment();
+        String ijson = get(path);
+        return mapper.readValue(ijson, GetExperimentResult.class);
+    }
+
+    public CreateRunResult createRun(CreateRunRequest request) throws Exception {
+        String ijson = mapper.writeValueAsString(request);
+        String ojson = post("runs/create",ijson);
+        return mapper.readValue(ojson, CreateRunResultWrapper.class).getRun().getInfo();
+    }
+
+    public void updateRun(UpdateRunRequest request) throws Exception {
+        String ijson = mapper.writeValueAsString(request);
+        post("runs/update",ijson);
+    }
+
+    public GetRunResult getRun(String runUuid) throws Exception {
+        String path = "runs/get?run_uuid="+runUuid;
+        String ojson = get(path);
+        return mapper.readValue(ojson, GetRunResultWrapper.class).getRun();
+    }
+
+    public void logParameter(String runUuid, String key, String value) throws Exception {
+        LogParam request = new LogParam(runUuid, key,value);
+        String ijson = mapper.writeValueAsString(request);
+        post("runs/log-parameter",ijson);
+    }
+
+    public void logMetric(String runUuid, String key, double value) throws Exception {
+        LogMetric request = new LogMetric(runUuid, key, value, ""+System.currentTimeMillis());
+        String ijson = mapper.writeValueAsString(request);
+        post("runs/log-metric",ijson);
     }
 
     String get(String path) throws Exception {
