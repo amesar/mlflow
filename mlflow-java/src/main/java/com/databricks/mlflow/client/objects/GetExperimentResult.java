@@ -11,8 +11,8 @@ public class GetExperimentResult {
 
     private List<RunInfo> runs;
     @JsonProperty("runs")
-    public List<RunInfo> getRunInfo() { return runs; }
-    public void setRunInfo(List<RunInfo> runs) { this.runs = runs; }
+    public List<RunInfo> getRuns() { return runs; }
+    public void setRuns(List<RunInfo> runs) { this.runs = runs; }
  
     @Override
     public String toString() {
