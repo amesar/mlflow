@@ -76,6 +76,15 @@ public class ApiClient {
         post("runs/log-metric",ijson);
     }
 
+    public Optional<ExperimentSummary> getExperimentByName(String experimentName) throws Exception {
+        return listExperiments().stream().filter(e -> e.getName().equals(experimentName)).findFirst();
+    }
+
+    public String getOrCreateExperimentId(String experimentName) throws Exception {
+        Optional<ExperimentSummary> opt = getExperimentByName(experimentName);
+        return opt.isPresent() ? opt.get().getExperimentId() : createExperiment(experimentName).getExperimentId();
+    }
+
     String get(String path) throws Exception {
         String fpath = basePath + "/" + path; 
         System.out.println("ApiClient.get: path: "+fpath);
