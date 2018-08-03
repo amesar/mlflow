@@ -3,7 +3,7 @@ package com.databricks.mlflow.client.objects;
 import java.util.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ListExperimentsResultWrapper {
+public class ListExperimentsResponseWrapper {
     private List<ExperimentSummary> experiments; 
 
     @JsonProperty("experiments")
