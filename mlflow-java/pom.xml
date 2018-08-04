@@ -3,6 +3,9 @@
  <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <faster.xml.version>2.9.6</faster.xml.version>
+    <httpclient.version>4.5.6</httpclient.version>
+    <testng.version>6.14.3</testng.version>
   </properties>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.databricks.mlflow</groupId>
@@ -20,17 +23,23 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.9.6</version>
+      <version>${faster.xml.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>2.9.6</version>
+      <version>${faster.xml.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
-      <version>4.5.6</version>
+      <version>${httpclient.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>${testng.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   <build>
