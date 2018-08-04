@@ -19,15 +19,10 @@ public class QuickStartDriver {
         ApiClient client = new ApiClient(host,port);
 
         System.out.println("====== createExperiment");
-        String expName = "Exp_1533266603220";
-        String experimentId = client.getOrCreateExperimentId(expName);
-/*
-        System.out.println("====== createExperiment");
         String expName = "Exp_"+System.currentTimeMillis();
         CreateExperimentResponse expResponse = client.createExperiment(expName);
         String experimentId = expResponse.getExperimentId();
         System.out.println("createExperiment: "+expResponse);
-*/
 
         System.out.println("====== getExperiment");
         GetExperimentResponse exp = client.getExperiment(experimentId);
