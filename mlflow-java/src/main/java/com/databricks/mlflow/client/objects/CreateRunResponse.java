@@ -3,48 +3,48 @@ package com.databricks.mlflow.client.objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class CreateRunResponse {
-    private String runUuid; 
     @JsonProperty("run_uuid")
+    private String runUuid; 
     public String getRunUuid() { return runUuid; }
     public void setRunUuid(String runUuid) { this.runUuid = runUuid; }
  
-    private String experimentId; 
     @JsonProperty("experiment_id")
+    private String experimentId; 
     public String getExperimentId() { return experimentId; }
     public void setExperimentId(String experimentId) { this.experimentId = experimentId; }
  
-    private String name; 
     @JsonProperty("name")
+    private String name; 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
  
-    private String source_type; 
     @JsonProperty("source_type")
-    public String getSource_type() { return source_type; }
-    public void setSource_type(String source_type) { this.source_type = source_type; }
+    private String sourceType; 
+    public String getSourceType() { return sourceType; }
+    public void setSourceType(String sourceType) { this.sourceType = sourceType; }
  
-    private String source_name; 
     @JsonProperty("source_name")
-    public String getSource_name() { return source_name; }
-    public void setSource_name(String source_name) { this.source_name = source_name; }
+    private String sourceName; 
+    public String getSourceName() { return sourceName; }
+    public void setSourceName(String sourceName) { this.sourceName = sourceName; }
  
-    private String userId; 
     @JsonProperty("user_id")
+    private String userId; 
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
  
-    private String status; 
     @JsonProperty("status")
+    private String status; 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
  
-    private String startTime; 
     @JsonProperty("start_time")
+    private String startTime; 
     public String getStartTime() { return startTime; }
     public void setStartTime(String startTime) { this.startTime = startTime; }
  
-    private String artifactUri; 
     @JsonProperty("artifact_uri")
+    private String artifactUri; 
     public String getArtifactUri() { return artifactUri; }
     public void setArtifactUri(String artifactUri) { this.artifactUri = artifactUri; }
 
@@ -54,8 +54,8 @@ public class CreateRunResponse {
               "runUuid=" + runUuid 
             + " experimentId=" + experimentId 
             + " name=" + name 
-            + " source_type=" + source_type 
-            + " source_name=" + source_name 
+            + " sourceType=" + sourceType 
+            + " sourceName=" + sourceName 
             + " userId=" + userId 
             + " status=" + status 
             + " startTime=" + startTime 

@@ -25,9 +25,9 @@ and [domain objects](src/main/java/com/databricks/mlflow/client/objects).
 ```
 public CreateExperimentResponse createExperiment(String experimentName) 
 
-public ExperimentSummary getExperiment(String experimentId) 
+public Experiment getExperiment(String experimentId) 
 
-public List<ExperimentSummary> getExperiments() 
+public List<Experiment> getExperiments() 
 
 
 public CreateRunResponse createRun(CreateRunRequest request)
@@ -86,7 +86,7 @@ public class QuickStartDriver {
         System.out.println("getExperiment: "+exp);
 
         System.out.println("====== listExperiments");
-        List<ExperimentSummary> exps = client.listExperiments();
+        List<Experiment> exps = client.listExperiments();
         System.out.println("#experiments: "+exps.size());
         exps.forEach(e -> System.out.println("  Exp: "+e));
 
@@ -105,9 +105,9 @@ public class QuickStartDriver {
         long startTime = System.currentTimeMillis();
         String sourceFile = "MyFile.java";
         CreateRunRequest request = new CreateRunRequest(experimentId, "run_for_"+experimentId, "LOCAL", sourceFile, startTime, user);
-        CreateRunResponse orun = client.createRun(request);
-        System.out.println("CreateRun: "+orun);
-        String runId = orun.getRunUuid();
+        RunInfo runCreated = client.createRun(request);
+        System.out.println("CreateRun: "+runCreated);
+        String runId = runCreated.getRunUuid();
 
         // Log parameters
         client.logParameter(runId, "min_samples_leaf", "2");

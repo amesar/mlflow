@@ -36,9 +36,9 @@ public class ApiClient {
         return mapper.readValue(ojson, CreateExperimentResponse.class);
     }
 
-    public List<ExperimentSummary> listExperiments() throws Exception {
+    public List<Experiment> listExperiments() throws Exception {
         String ijson = get("experiments/list");
-        return mapper.readValue(ijson, ListExperimentsResponseWrapper.class).getExperiments();
+        return mapper.readValue(ijson, ListExperimentsResponse.class).getExperiments();
     }
 
     public GetExperimentResponse getExperiment(String experimentId) throws Exception {
@@ -47,7 +47,7 @@ public class ApiClient {
         return mapper.readValue(ijson, GetExperimentResponse.class);
     }
 
-    public CreateRunResponse createRun(CreateRunRequest request) throws Exception {
+    public RunInfo createRun(CreateRunRequest request) throws Exception {
         String ijson = mapper.writeValueAsString(request);
         String ojson = post("runs/create",ijson);
         return mapper.readValue(ojson, CreateRunResponseWrapper.class).getRun().getInfo();
@@ -76,12 +76,12 @@ public class ApiClient {
         post("runs/log-metric",ijson);
     }
 
-    public Optional<ExperimentSummary> getExperimentByName(String experimentName) throws Exception {
+    public Optional<Experiment> getExperimentByName(String experimentName) throws Exception {
         return listExperiments().stream().filter(e -> e.getName().equals(experimentName)).findFirst();
     }
 
     public String getOrCreateExperimentId(String experimentName) throws Exception {
-        Optional<ExperimentSummary> opt = getExperimentByName(experimentName);
+        Optional<Experiment> opt = getExperimentByName(experimentName);
         return opt.isPresent() ? opt.get().getExperimentId() : createExperiment(experimentName).getExperimentId();
     }
 
