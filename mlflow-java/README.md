@@ -4,18 +4,24 @@ First pass for a Java client for [MLflow](https://mlflow.org) REST API.
 See also the MLflow [Python API](https://mlflow.org/docs/latest/python_api/index.html)
 and [REST API](https://mlflow.org/docs/latest/rest_api.html).
 
-You will need to have a MLflow tracking server running.
-
 ## Requirements
 
 * Java 1.8
 * Maven
-* mlflow 4.0+
+* [MLflow Tracking Server](https://mlflow.org/docs/latest/tracking.html#running-a-tracking-server)
 
-## Build
+## Build and Run
 ```
-mvn package
+mvn -DskipTests=true package
+java -cp target/mlflow-java-1.0-SNAPSHOT.jar com.databricks.mlflow.client.QuickStartDriver.Driver localhost 5000
 ```
+
+### Tests
+
+MLflow [tests](src/test/java/com/databricks/mlflow/client) expect a MLflow tracking server to be running on port 5001.
+If you don't wish to run tests, build with ``skipTests`` property as above.
+Otherwise, run an MLflow tracking server on port 5001 and build with ``mvn package``.
+
 
 ## Java Client API
 
@@ -129,11 +135,3 @@ public class QuickStartDriver {
 }
 
 ```
-
-## Run sample
-
-```
-mvn package
-java -cp target/mlflow-java-1.0-SNAPSHOT.jar com.databricks.mlflow.client.QuickStartDriver.Driver localhost 5000
-```
-
