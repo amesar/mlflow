@@ -22,6 +22,10 @@ MLflow [tests](src/test/java/com/databricks/mlflow/client) expect a MLflow track
 If you don't wish to run tests, build with ``skipTests`` property as above.
 Otherwise, run an MLflow tracking server on port 5001 and build with ``mvn package``.
 
+If you wish to run the tests, you can run the Docker container that launches an MLflow tracking server.
+
+* Build image: ``docker build -t mlflow-test:latest``
+* Run container: ``docker run -t -d --name mlflow-test -p 5001:5000  mlflow-test:latest``
 
 ## Java Client API
 
