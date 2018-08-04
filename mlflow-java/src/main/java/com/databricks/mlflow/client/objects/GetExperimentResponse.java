@@ -5,9 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GetExperimentResponse {
     @JsonProperty("experiment")
-    private ExperimentSummary experiment; 
-    public ExperimentSummary getExperiment() { return experiment; }
-    public void setExperiment(ExperimentSummary experiment) { this.experiment= experiment; }
+    private Experiment experiment; 
+    public Experiment getExperiment() { return experiment; }
+    public void setExperiment(Experiment experiment) { this.experiment= experiment; }
 
     private List<RunInfo> runs;
     @JsonProperty("runs")

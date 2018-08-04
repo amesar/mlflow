@@ -19,16 +19,22 @@ public class QuickStartDriver {
         ApiClient client = new ApiClient(host,port);
 
         System.out.println("====== createExperiment");
-        CreateExperimentResponse expResponse = client.createExperiment("Exp_"+System.currentTimeMillis());
+        String expName = "Exp_1533266603220";
+        String experimentId = client.getOrCreateExperimentId(expName);
+/*
+        System.out.println("====== createExperiment");
+        String expName = "Exp_"+System.currentTimeMillis();
+        CreateExperimentResponse expResponse = client.createExperiment(expName);
         String experimentId = expResponse.getExperimentId();
         System.out.println("createExperiment: "+expResponse);
+*/
 
         System.out.println("====== getExperiment");
         GetExperimentResponse exp = client.getExperiment(experimentId);
         System.out.println("getExperiment: "+exp);
 
         System.out.println("====== listExperiments");
-        List<ExperimentSummary> exps = client.listExperiments();
+        List<Experiment> exps = client.listExperiments();
         System.out.println("#experiments: "+exps.size());
         exps.forEach(e -> System.out.println("  Exp: "+e));
 
@@ -37,6 +43,9 @@ public class QuickStartDriver {
         System.out.println("====== getExperiment");
         GetExperimentResponse exp2 = client.getExperiment(experimentId);
         System.out.println("getExperiment: "+exp2);
+
+        Optional<Experiment> ee = client.getExperimentByName(expName);
+        System.out.println("getExperimentByName: "+ee);
     }
 
     void createRun(ApiClient client, String experimentId) throws Exception {
@@ -47,9 +56,9 @@ public class QuickStartDriver {
         long startTime = System.currentTimeMillis();
         String sourceFile = "MyFile.java";
         CreateRunRequest request = new CreateRunRequest(experimentId, "run_for_"+experimentId, "LOCAL", sourceFile, startTime, user);
-        CreateRunResponse orun = client.createRun(request);
-        System.out.println("CreateRun: "+orun);
-        String runId = orun.getRunUuid();
+        RunInfo runCreated = client.createRun(request);
+        System.out.println("CreateRun: "+runCreated);
+        String runId = runCreated.getRunUuid();
 
         // Log parameters
         client.logParameter(runId, "min_samples_leaf", "2");

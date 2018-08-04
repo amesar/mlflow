@@ -61,7 +61,7 @@ public class RunInfo {
             + " experimentId=" + experimentId 
             + " name=" + name 
             + " sourceType=" + sourceType 
-            + " source_name=" + sourceName 
+            + " sourceName=" + sourceName 
             + " userId=" + userId 
             + " status=" + status 
             + " startTime=" + startTime 
