@@ -13,7 +13,14 @@ and [REST API](https://mlflow.org/docs/latest/rest_api.html).
 ## Build and Run
 ```
 mvn -DskipTests=true package
-java -cp target/mlflow-java-1.0-SNAPSHOT.jar com.databricks.mlflow.client.QuickStartDriver.Driver localhost 5000
+java -cp target/mlflow-java-1.0-SNAPSHOT.jar com.databricks.mlflow.client.samples.QuickStartDriver localhost 5000
+```
+
+### Scala Client Usage
+You can also invoke the MLFlow Java client from Scala.
+See the preliminary [ScalaDriver.scala](src/main/scala/com/databricks/mlflow/client/samples/ScalaDriver.scala).
+```
+java -cp target/mlflow-java-1.0-SNAPSHOT.jar com.databricks.mlflow.client.samples.ScalaDriver localhost 5000
 ```
 
 ### Tests
