@@ -8,7 +8,7 @@ You will need to have a MLflow tracking server running.
 
 ## Requirements
 
-* Java 2.11.8
+* Java 1.8
 * Maven
 * mlflow 4.0+
 
