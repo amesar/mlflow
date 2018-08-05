@@ -11,18 +11,19 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.apache.http.client.utils.URIBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.databricks.mlflow.client.objects.*;
 
 public class ApiClient {
+    private String apiUri ;
     private String basePath = "api/2.0/preview/mlflow";
-    private HttpHost httpHost ;
     private HttpClient httpClient = HttpClientBuilder.create().build();
     private ObjectMapper mapper = new ObjectMapper();
 
     public ApiClient(String uri) throws Exception {
+        this.apiUri = uri + "/" + basePath;
         URL url = new URL(uri);
-        httpHost = new HttpHost(url.getHost(), url.getPort(), url.getProtocol());
     }
 
     public CreateExperimentResponse createExperiment(String experimentName) throws Exception {
@@ -38,8 +39,8 @@ public class ApiClient {
     }
 
     public GetExperimentResponse getExperiment(String experimentId) throws Exception {
-        String path = "experiments/get?experiment_id="+experimentId;
-        String ijson = get(path);
+        URIBuilder builder = new URIBuilder(apiUri+"/experiments/get").setParameter("experiment_id",experimentId);
+        String ijson = _get(builder.toString());
         return mapper.readValue(ijson, GetExperimentResponse.class);
     }
 
@@ -55,8 +56,8 @@ public class ApiClient {
     }
 
     public GetRunResponse getRun(String runUuid) throws Exception {
-        String path = "runs/get?run_uuid="+runUuid;
-        String ojson = get(path);
+        URIBuilder builder = new URIBuilder(apiUri+"/runs/get").setParameter("run_uuid",runUuid);
+        String ojson = _get(builder.toString());
         return mapper.readValue(ojson, GetRunResponseWrapper.class).getRun();
     }
 
@@ -82,10 +83,13 @@ public class ApiClient {
     }
 
     String get(String path) throws Exception {
-        String fpath = basePath + "/" + path; 
-        System.out.println("ApiClient.get: path: "+fpath);
-        HttpGet request = new HttpGet(fpath);
-        HttpResponse response = httpClient.execute(httpHost, request);
+        return _get(makeUri(path));
+    }
+
+    String _get(String uri) throws Exception {
+        System.out.println("ApiClient._get: uri: "+uri);
+        HttpGet request = new HttpGet(uri);
+        HttpResponse response = httpClient.execute(request);
         checkError(response);
         HttpEntity entity = response.getEntity();
         String ojson = EntityUtils.toString(entity);
@@ -94,19 +98,23 @@ public class ApiClient {
     }
 
     String post(String path, String ijson) throws Exception {
-        String fpath = basePath + "/" + path; 
+        String fpath = makeUri(path);
         System.out.println("ApiClient.post: path: "+fpath);
         StringEntity ientity = new StringEntity(ijson);
         System.out.println("ApiClient.post: ijson: "+ijson);
 
         HttpPost request = new HttpPost(fpath);
         request.setEntity(ientity);
-        HttpResponse response = httpClient.execute(httpHost, request);
+        HttpResponse response = httpClient.execute(request);
         HttpEntity oentity = response.getEntity();
         checkError(response);
         String ojson = EntityUtils.toString(oentity);
         System.out.println("ApiClient.post: ojson: "+ojson);
         return ojson;
+    }
+
+    private String makeUri(String path) { // throws Exception {
+        return apiUri + "/" + path; 
     }
 
     private void checkError(HttpResponse response) throws Exception {
