@@ -1,6 +1,7 @@
 package com.databricks.mlflow.client;
 
 import java.util.*;
+import java.net.URL;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -14,19 +15,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.databricks.mlflow.client.objects.*;
 
 public class ApiClient {
-    private String host ;
-    private String apiUri ;
-    private int port ;
     private String basePath = "api/2.0/preview/mlflow";
     private HttpHost httpHost ;
     private HttpClient httpClient = HttpClientBuilder.create().build();
     private ObjectMapper mapper = new ObjectMapper();
 
-    public ApiClient(String host, int port) {
-        this.host = host;
-        this.port = port;
-        this.basePath = "api/2.0/preview/mlflow";
-        httpHost = new HttpHost(host, port, "http");
+    public ApiClient(String uri) throws Exception {
+        URL url = new URL(uri);
+        httpHost = new HttpHost(url.getHost(), url.getPort(), url.getProtocol());
     }
 
     public CreateExperimentResponse createExperiment(String experimentName) throws Exception {

@@ -6,13 +6,12 @@ import com.databricks.mlflow.client.ApiClient
 import com.databricks.mlflow.client.objects._
 
 class BaseTest() {
-  val host = "localhost"
-  val port = 5001
+  val apiUri = "http://localhost:5001";
   var client: ApiClient = null 
 
   @BeforeClass
   def BeforeClass() {
-      client = new ApiClient(host,port)
+      client = new ApiClient(apiUri);
   }
 
   def createExperimentName() = "TestScala_"+System.currentTimeMillis.toString
