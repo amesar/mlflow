@@ -13,14 +13,14 @@ and [REST API](https://mlflow.org/docs/latest/rest_api.html).
 ## Build and Run
 ```
 mvn -DskipTests=true package
-java -cp target/mlflow-java-1.0-SNAPSHOT.jar com.databricks.mlflow.client.samples.QuickStartDriver localhost 5000
+java -cp target/mlflow-java-1.0-SNAPSHOT.jar com.databricks.mlflow.client.samples.QuickStartDriver http://localhost:5000
 ```
 
 ### Scala Client Usage
 You can also invoke the MLFlow Java client from Scala.
 See the preliminary [ScalaDriver.scala](src/main/scala/com/databricks/mlflow/client/samples/ScalaDriver.scala).
 ```
-java -cp target/mlflow-java-1.0-SNAPSHOT.jar com.databricks.mlflow.client.samples.ScalaDriver localhost 5000
+java -cp target/mlflow-java-1.0-SNAPSHOT.jar com.databricks.mlflow.client.samples.ScalaDriver http://localhost:5000
 ```
 
 ### Tests
@@ -89,9 +89,8 @@ public class QuickStartDriver {
             System.out.println("ERROR: Missing HOST and PORT");
             System.exit(1);
         }
-        String host = args[0];
-        int port = Integer.parseInt(args[1]);
-        ApiClient client = new ApiClient(host,port);
+        String apiUri = args[0];
+        ApiClient client = new ApiClient(apiUri);
 
         System.out.println("====== createExperiment");
         CreateExperimentResponse expResponse = client.createExperiment("Exp_"+System.currentTimeMillis());

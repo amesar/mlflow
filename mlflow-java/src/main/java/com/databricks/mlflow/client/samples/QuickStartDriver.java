@@ -10,13 +10,11 @@ public class QuickStartDriver {
     }
 
     void process(String [] args) throws Exception {
-        if (args.length < 2) {
-            System.out.println("ERROR: Missing HOST and PORT");
+        if (args.length < 1) {
+            System.out.println("ERROR: Missing URI");
             System.exit(1);
         }
-        String host = args[0];
-        int port = Integer.parseInt(args[1]);
-        ApiClient client = new ApiClient(host,port);
+        ApiClient client = new ApiClient(args[0]);
 
         System.out.println("====== createExperiment");
         String expName = "Exp_"+System.currentTimeMillis();
