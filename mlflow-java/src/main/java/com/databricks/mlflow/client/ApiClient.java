@@ -7,7 +7,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.databricks.mlflow.client.objects.*;
@@ -18,7 +19,7 @@ public class ApiClient {
     private int port ;
     private String basePath = "api/2.0/preview/mlflow";
     private HttpHost httpHost ;
-    private DefaultHttpClient httpclient = new DefaultHttpClient();
+    private HttpClient httpClient = HttpClientBuilder.create().build();
     private ObjectMapper mapper = new ObjectMapper();
 
     public ApiClient(String host, int port) {
@@ -89,7 +90,7 @@ public class ApiClient {
         String fpath = basePath + "/" + path; 
         System.out.println("ApiClient.get: path: "+fpath);
         HttpGet request = new HttpGet(fpath);
-        HttpResponse response = httpclient.execute(httpHost, request);
+        HttpResponse response = httpClient.execute(httpHost, request);
         HttpEntity entity = response.getEntity();
         String ojson = EntityUtils.toString(entity);
         System.out.println("ApiClient.get: ojson: "+ojson);
@@ -104,7 +105,7 @@ public class ApiClient {
 
         HttpPost request = new HttpPost(fpath);
         request.setEntity(ientity);
-        HttpResponse response = httpclient.execute(httpHost, request);
+        HttpResponse response = httpClient.execute(httpHost, request);
         HttpEntity oentity = response.getEntity();
         String ojson = EntityUtils.toString(oentity);
         System.out.println("ApiClient.post: ojson: "+ojson);
