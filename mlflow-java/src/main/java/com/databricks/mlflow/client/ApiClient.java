@@ -87,6 +87,7 @@ public class ApiClient {
         System.out.println("ApiClient.get: path: "+fpath);
         HttpGet request = new HttpGet(fpath);
         HttpResponse response = httpClient.execute(httpHost, request);
+        checkError(response);
         HttpEntity entity = response.getEntity();
         String ojson = EntityUtils.toString(entity);
         System.out.println("ApiClient.get: ojson: "+ojson);
@@ -103,8 +104,28 @@ public class ApiClient {
         request.setEntity(ientity);
         HttpResponse response = httpClient.execute(httpHost, request);
         HttpEntity oentity = response.getEntity();
+        checkError(response);
         String ojson = EntityUtils.toString(oentity);
         System.out.println("ApiClient.post: ojson: "+ojson);
         return ojson;
+    }
+
+    private void checkError(HttpResponse response) throws Exception {
+        int statusCode = response.getStatusLine().getStatusCode();
+        String reasonPhrase = response.getStatusLine().getReasonPhrase();
+        if (isError(statusCode)) {
+            String bodyMessage = EntityUtils.toString(response.getEntity());
+            if (statusCode >= 400 && statusCode <= 499) {
+                throw new HttpClientException(statusCode,reasonPhrase,bodyMessage);
+            }
+            if (statusCode >= 500 && statusCode <= 599) {
+                throw new HttpServerException(statusCode,reasonPhrase,bodyMessage);
+            }
+            throw new HttpException(statusCode,reasonPhrase,bodyMessage);
+         }
+    }
+
+    private boolean isError(int statusCode) {
+        return statusCode < 200 || statusCode > 299 ;
     }
 }
