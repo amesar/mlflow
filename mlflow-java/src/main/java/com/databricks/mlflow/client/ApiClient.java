@@ -26,8 +26,7 @@ public class ApiClient {
     }
 
     public CreateExperimentResponse createExperiment(String experimentName) throws Exception {
-        CreateExperimentRequest request = new CreateExperimentRequest();
-        request.setName(experimentName);
+        CreateExperimentRequest request = new CreateExperimentRequest(experimentName);
         String ijson = mapper.writeValueAsString(request);
         String ojson = post("experiments/create",ijson);
         return mapper.readValue(ojson, CreateExperimentResponse.class);

@@ -108,4 +108,14 @@ public class ApiClientTest extends BaseTest {
     private java.util.Optional<Experiment> getExperimentByName(List<Experiment> exps, String expName) {
         return exps.stream().filter(e -> e.getName().equals(expName)).findFirst();
     }
+
+    @Test (expectedExceptions = HttpServerException.class) // TODO: server should throw 406
+    public void createExistingExperiment() throws Exception {
+        String expName = createExperimentName();
+        CreateExperimentResponse expCreate = client.createExperiment(expName);
+        GetExperimentResponse exp = client.getExperiment(expCreate.getExperimentId());
+        Assert.assertEquals(exp.getExperiment().getName(),expName);
+
+        client.createExperiment(expName);
+    }
 }
