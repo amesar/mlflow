@@ -92,6 +92,16 @@ public class ApiClientTest extends BaseTest {
         assertMetric(metrics,"auc",2.12);
         assertMetric(metrics,"accuracy_score",3.12);
         assertMetric(metrics,"zero_one_loss",4.12);
+
+        Metric m = client.getMetric(runId,"auc");
+        Assert.assertEquals(m.getKey(),"auc");
+        Assert.assertEquals(m.getValue(),2.12);
+
+        metrics = client.getMetricHistory(runId,"auc");
+        Assert.assertEquals(metrics.size(),1);
+        m = metrics.get(0);
+        Assert.assertEquals(m.getKey(),"auc");
+        Assert.assertEquals(m.getValue(),2.12);
     }
 
     private void assertRunInfo(RunInfo runInfo, String experimentId, String user, String sourceName) {
