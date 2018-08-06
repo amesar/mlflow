@@ -39,9 +39,8 @@ public class ApiClient {
     }
 
     public GetExperimentResponse getExperiment(String experimentId) throws Exception {
-        URIBuilder builder = new URIBuilder(apiUri+"/experiments/get").setParameter("experiment_id",experimentId);
-        String ijson = _get(builder.toString());
-        return mapper.readValue(ijson, GetExperimentResponse.class);
+        URIBuilder builder = makeURIBuilder("experiments/get").setParameter("experiment_id",experimentId);
+        return mapper.readValue(_get(builder), GetExperimentResponse.class);
     }
 
     public RunInfo createRun(CreateRunRequest request) throws Exception {
@@ -56,21 +55,34 @@ public class ApiClient {
     }
 
     public GetRunResponse getRun(String runUuid) throws Exception {
-        URIBuilder builder = new URIBuilder(apiUri+"/runs/get").setParameter("run_uuid",runUuid);
-        String ojson = _get(builder.toString());
-        return mapper.readValue(ojson, GetRunResponseWrapper.class).getRun();
+        URIBuilder builder = makeURIBuilder("runs/get").setParameter("run_uuid",runUuid);
+        return mapper.readValue(_get(builder), GetRunResponseWrapper.class).getRun();
     }
 
     public void logParameter(String runUuid, String key, String value) throws Exception {
         LogParam request = new LogParam(runUuid, key,value);
-        String ijson = mapper.writeValueAsString(request);
-        post("runs/log-parameter",ijson);
+        String json = mapper.writeValueAsString(request);
+        post("runs/log-parameter",json);
     }
 
     public void logMetric(String runUuid, String key, double value) throws Exception {
         LogMetric request = new LogMetric(runUuid, key, value, ""+System.currentTimeMillis());
-        String ijson = mapper.writeValueAsString(request);
-        post("runs/log-metric",ijson);
+        String json = mapper.writeValueAsString(request);
+        post("runs/log-metric",json);
+    }
+
+    public Metric getMetric(String runUuid, String metricKey) throws Exception {
+        URIBuilder builder = makeURIBuilder("metrics/get")
+            .setParameter("run_uuid",runUuid)
+            .setParameter("metric_key",metricKey);
+        return mapper.readValue(_get(builder), GetMetricResponse.class).getMetric();
+    }
+
+    public List<Metric> getMetricHistory(String runUuid, String metricKey) throws Exception {
+        URIBuilder builder = makeURIBuilder("metrics/get-history")
+            .setParameter("run_uuid",runUuid)
+            .setParameter("metric_key",metricKey);
+        return mapper.readValue(_get(builder), GetMetricHistoryResponse.class).getMetrics();
     }
 
     public Optional<Experiment> getExperimentByName(String experimentName) throws Exception {
@@ -84,6 +96,9 @@ public class ApiClient {
 
     String get(String path) throws Exception {
         return _get(makeUri(path));
+    }
+    String _get(URIBuilder uriBuilder) throws Exception {
+        return _get(uriBuilder.toString());
     }
 
     String _get(String uri) throws Exception {
@@ -113,8 +128,12 @@ public class ApiClient {
         return ojson;
     }
 
-    private String makeUri(String path) { // throws Exception {
+    private String makeUri(String path) {
         return apiUri + "/" + path; 
+    }
+
+    private URIBuilder makeURIBuilder(String path) throws Exception {
+        return new URIBuilder(apiUri+"/"+path);
     }
 
     private void checkError(HttpResponse response) throws Exception {

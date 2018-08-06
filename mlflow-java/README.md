@@ -57,6 +57,10 @@ public GetRunResponse getRun(String runUuid)
 public void logParameter(String runUuid, String key, String value)
 
 public void logMetric(String runUuid, String key, double value) 
+
+public Metric getMetric(String runUuid, String metricKey)
+
+public List<Metric> getMetricHistory(String runUuid, String metricKey)
 ```
 
 ## Sample
