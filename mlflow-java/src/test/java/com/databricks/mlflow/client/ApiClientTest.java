@@ -39,21 +39,17 @@ public class ApiClientTest extends BaseTest {
 
     @Test
     public void addGetRun() throws Exception {
-        System.out.println("====== createRun"); 
         // Create exp 
         String expName = createExperimentName();
         CreateExperimentResponse expCreate = client.createExperiment(expName);
         String experimentId = expCreate.getExperimentId();
     
-        System.out.println("====== createRun");
-        
         // Create run 
         String user = System.getenv("USER");
         long startTime = System.currentTimeMillis();
         String sourceFile = "MyFile.java";
         CreateRunRequest request = new CreateRunRequest(experimentId, "run_for_"+experimentId, "LOCAL", sourceFile, startTime, user);     
         RunInfo runCreated = client.createRun(request);
-        System.out.println("CreateRun: "+runCreated);
         String runId = runCreated.getRunUuid();
     
         // Log parameters
@@ -77,7 +73,6 @@ public class ApiClientTest extends BaseTest {
         
         // Assert run from getRun
         GetRunResponse run = client.getRun(runId);
-        System.out.println("GetRun: "+run);
     
         RunInfo runInfo = run.getInfo();
         assertRunInfo(runInfo, experimentId, user, sourceFile);

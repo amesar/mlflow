@@ -1,4 +1,4 @@
-# MLFlow Java Client
+# MLflow Java Client
 
 First pass for a Java client for [MLflow](https://mlflow.org) REST API.
 See also the MLflow [Python API](https://mlflow.org/docs/latest/python_api/index.html)
@@ -8,7 +8,7 @@ and [REST API](https://mlflow.org/docs/latest/rest_api.html).
 
 * Java 1.8
 * Maven
-* [MLflow Tracking Server](https://mlflow.org/docs/latest/tracking.html#running-a-tracking-server)
+* [MLflow Tracking Server](https://mlflow.org/docs/latest/tracking.html#running-a-tracking-server) - you will need to launch a server
 
 ## Build and Run
 ```
@@ -17,8 +17,9 @@ java -cp target/mlflow-java-1.0-SNAPSHOT.jar com.databricks.mlflow.client.sample
 ```
 
 ### Scala Client Usage
-You can also invoke the MLFlow Java client from Scala.
-See the preliminary [ScalaDriver.scala](src/main/scala/com/databricks/mlflow/client/samples/ScalaDriver.scala).
+You can also invoke the MLflow Java client from Scala.
+See the preliminary [ScalaDriver.scala](src/main/scala/com/databricks/mlflow/client/samples/ScalaDriver.scala) and
+[ApiClientTest.scala](src/test/scala/com/databricks/mlflow/client/scala/ApiClientTest.scala).
 ```
 java -cp target/mlflow-java-1.0-SNAPSHOT.jar com.databricks.mlflow.client.samples.ScalaDriver http://localhost:5000
 ```
@@ -63,9 +64,12 @@ public Metric getMetric(String runUuid, String metricKey)
 public List<Metric> getMetricHistory(String runUuid, String metricKey)
 ```
 
-## Sample
+## Usage
 
-[QuickStartDriver.java](src/main/java/com/databricks/mlflow/client/samples/QuickStartDriver.java) does the following:
+See [ApiClientTest.java](src/test/java/com/databricks/mlflow/client/ApiClientTest.java) and
+ [QuickStartDriver.java](src/main/java/com/databricks/mlflow/client/samples/QuickStartDriver.java) for usage.
+
+The latter does the following:
 * Creates new experiment
 * Gets experiment details
 * Lists experiments
@@ -94,7 +98,8 @@ public class QuickStartDriver {
             System.exit(1);
         }
         String apiUri = args[0];
-        ApiClient client = new ApiClient(apiUri);
+        boolean verbose = args.length < 2 ? false : Boolean.parseBoolean("true");
+        ApiClient client = new ApiClient(apiUri, verbose);
 
         System.out.println("====== createExperiment");
         CreateExperimentResponse expResponse = client.createExperiment("Exp_"+System.currentTimeMillis());

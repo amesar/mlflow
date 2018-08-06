@@ -14,7 +14,8 @@ public class QuickStartDriver {
             System.out.println("ERROR: Missing URI");
             System.exit(1);
         }
-        ApiClient client = new ApiClient(args[0]);
+        boolean verbose = args.length < 2 ? false : Boolean.parseBoolean("true");
+        ApiClient client = new ApiClient(args[0], verbose);
 
         System.out.println("====== createExperiment");
         String expName = "Exp_"+System.currentTimeMillis();

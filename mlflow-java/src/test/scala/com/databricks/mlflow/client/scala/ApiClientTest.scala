@@ -34,21 +34,17 @@ class ApiClientTest extends BaseTest {
 
   @Test
   def addGetRun() {
-    System.out.println("====== createRun"); 
     // Create exp 
     val expName = createExperimentName()
     val expCreate = client.createExperiment(expName)
     val experimentId = expCreate.getExperimentId()
 
-    System.out.println("====== createRun");
-    
     // Create run 
     val user = System.getenv("USER");
     val startTime = System.currentTimeMillis();
     val sourceFile = "MyFile.java";
     val request = new CreateRunRequest(experimentId, "run_for_"+experimentId, "LOCAL", sourceFile, startTime, user);     
     val runCreated = client.createRun(request);
-    System.out.println("CreateRun: "+runCreated);
     val runId = runCreated.getRunUuid();
 
     // Log parameters
@@ -66,7 +62,6 @@ class ApiClientTest extends BaseTest {
     
     // Get run details
     val run = client.getRun(runId);
-    System.out.println("GetRun: "+run);
 
     val runInfo = run.getInfo()
     assertEquals(runInfo.getExperimentId(),experimentId)

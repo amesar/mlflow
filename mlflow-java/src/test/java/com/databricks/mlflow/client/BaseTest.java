@@ -8,7 +8,7 @@ public class BaseTest {
 
     @BeforeSuite
     public static void beforeSuite() throws Exception {
-        client = new ApiClient(apiUri);
+        client = new ApiClient(apiUri, true);
     }
 
     public String createExperimentName() {

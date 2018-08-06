@@ -2,6 +2,9 @@ package com.databricks.mlflow.client;
 
 import java.util.*;
 import java.net.URL;
+import org.apache.log4j.Logger;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Level;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -16,14 +19,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.databricks.mlflow.client.objects.*;
 
 public class ApiClient {
+    private static final Logger logger = Logger.getLogger(ApiClient.class);
     private String apiUri ;
     private String basePath = "api/2.0/preview/mlflow";
     private HttpClient httpClient = HttpClientBuilder.create().build();
     private ObjectMapper mapper = new ObjectMapper();
 
     public ApiClient(String uri) throws Exception {
+        this(uri, false);
+    }
+
+    public ApiClient(String uri, boolean verbose) throws Exception {
         this.apiUri = uri + "/" + basePath;
-        URL url = new URL(uri);
+        if (verbose) {
+            LogManager.getLogger("com.databricks").setLevel(Level.DEBUG);
+        }
+        logger.debug("apiUri: "+apiUri);
     }
 
     public CreateExperimentResponse createExperiment(String experimentName) throws Exception {
@@ -61,14 +72,14 @@ public class ApiClient {
 
     public void logParameter(String runUuid, String key, String value) throws Exception {
         LogParam request = new LogParam(runUuid, key,value);
-        String json = mapper.writeValueAsString(request);
-        post("runs/log-parameter",json);
+        String ijson = mapper.writeValueAsString(request);
+        post("runs/log-parameter",ijson);
     }
 
     public void logMetric(String runUuid, String key, double value) throws Exception {
         LogMetric request = new LogMetric(runUuid, key, value, ""+System.currentTimeMillis());
-        String json = mapper.writeValueAsString(request);
-        post("runs/log-metric",json);
+        String ijson = mapper.writeValueAsString(request);
+        post("runs/log-metric",ijson);
     }
 
     public Metric getMetric(String runUuid, String metricKey) throws Exception {
@@ -102,29 +113,29 @@ public class ApiClient {
     }
 
     String _get(String uri) throws Exception {
-        System.out.println("ApiClient._get: uri: "+uri);
+        logger.debug("uri: "+uri);
         HttpGet request = new HttpGet(uri);
         HttpResponse response = httpClient.execute(request);
         checkError(response);
         HttpEntity entity = response.getEntity();
         String ojson = EntityUtils.toString(entity);
-        System.out.println("ApiClient.get: ojson: "+ojson);
+        logger.debug("response: "+ojson);
         return ojson;
     }
 
     String post(String path, String ijson) throws Exception {
-        String fpath = makeUri(path);
-        System.out.println("ApiClient.post: path: "+fpath);
+        String uri = makeUri(path);
+        logger.debug("uri: "+uri);
         StringEntity ientity = new StringEntity(ijson);
-        System.out.println("ApiClient.post: ijson: "+ijson);
+        logger.debug("request: "+ijson);
 
-        HttpPost request = new HttpPost(fpath);
+        HttpPost request = new HttpPost(uri);
         request.setEntity(ientity);
         HttpResponse response = httpClient.execute(request);
         HttpEntity oentity = response.getEntity();
         checkError(response);
         String ojson = EntityUtils.toString(oentity);
-        System.out.println("ApiClient.post: ojson: "+ojson);
+        logger.debug("response: "+ojson);
         return ojson;
     }
 
