@@ -99,21 +99,6 @@ public class ApiClientTest extends BaseTest {
         Assert.assertEquals(m.getValue(),2.12);
     }
 
-    private void assertRunInfo(RunInfo runInfo, String experimentId, String user, String sourceName) {
-        Assert.assertEquals(runInfo.getExperimentId(),experimentId);
-        Assert.assertEquals(runInfo.getUserId(),user);
-        Assert.assertEquals(runInfo.getSourceName(),sourceName);
-    }
-    private void assertParam(List<Param> params, String key, String value) {
-        Assert.assertTrue(params.stream().filter(e -> e.getKey().equals(key) && e.getValue().equals(value)).findFirst().isPresent());
-    }
-    private void assertMetric(List<Metric> metrics, String key, double value) {
-        Assert.assertTrue(metrics.stream().filter(e -> e.getKey().equals(key) && e.getValue().equals(value)).findFirst().isPresent());
-    }
-    private java.util.Optional<Experiment> getExperimentByName(List<Experiment> exps, String expName) {
-        return exps.stream().filter(e -> e.getName().equals(expName)).findFirst();
-    }
-
     @Test (expectedExceptions = HttpServerException.class) // TODO: server should throw 406
     public void createExistingExperiment() throws Exception {
         String expName = createExperimentName();
