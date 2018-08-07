@@ -25,7 +25,7 @@ public class ListArtifactsResponse {
     public String toString() {
         return
                "files=" + files
-             + "rootUri=" + rootUri
+             + " rootUri=" + rootUri
         ;
     }
 }

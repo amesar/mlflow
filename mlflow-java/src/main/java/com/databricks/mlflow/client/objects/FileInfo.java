@@ -29,9 +29,9 @@ public class FileInfo {
     @Override
     public String toString() {
         return
-               "path=" + path
-             + "isDir=" + isDir
-             + "fileSize=" + fileSize
+               "[path=" + path
+             + " isDir=" + isDir
+             + " fileSize=" + fileSize+"]"
         ;
     }
 }
