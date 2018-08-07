@@ -62,6 +62,8 @@ public void logMetric(String runUuid, String key, double value)
 public Metric getMetric(String runUuid, String metricKey)
 
 public List<Metric> getMetricHistory(String runUuid, String metricKey)
+
+public ListArtifactsResponse listArtifacts(String runUuid, String path) 
 ```
 
 ## Usage
