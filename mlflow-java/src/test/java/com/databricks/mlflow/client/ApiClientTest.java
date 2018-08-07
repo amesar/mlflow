@@ -57,9 +57,9 @@ public class ApiClientTest extends BaseTest {
         client.logParameter(runId, "max_depth", "3");
     
         // Log metrics
-        client.logMetric(runId, "auc", 2.12);
-        client.logMetric(runId, "accuracy_score", 3.12);
-        client.logMetric(runId, "zero_one_loss", 4.12);
+        client.logMetric(runId, "auc", 1.5);
+        client.logMetric(runId, "accuracy_score", 0.667);
+        client.logMetric(runId, "zero_one_loss", 0.333);
     
         // Update finished run
         UpdateRunRequest update = new UpdateRunRequest(runId, "FINISHED", startTime+1001);
@@ -84,19 +84,19 @@ public class ApiClientTest extends BaseTest {
   
         List<Metric> metrics = run.getData().getMetrics();
         Assert.assertEquals(metrics.size(),3);
-        assertMetric(metrics,"auc",2.12);
-        assertMetric(metrics,"accuracy_score",3.12);
-        assertMetric(metrics,"zero_one_loss",4.12);
+        assertMetric(metrics,"auc",1.5);
+        assertMetric(metrics,"accuracy_score",0.667);
+        assertMetric(metrics,"zero_one_loss",0.333);
 
         Metric m = client.getMetric(runId,"auc");
         Assert.assertEquals(m.getKey(),"auc");
-        Assert.assertEquals(m.getValue(),2.12);
+        Assert.assertEquals(m.getValue(),1.5);
 
         metrics = client.getMetricHistory(runId,"auc");
         Assert.assertEquals(metrics.size(),1);
         m = metrics.get(0);
         Assert.assertEquals(m.getKey(),"auc");
-        Assert.assertEquals(m.getValue(),2.12);
+        Assert.assertEquals(m.getValue(),1.5);
     }
 
     @Test (expectedExceptions = HttpServerException.class) // TODO: server should throw 406
