@@ -90,13 +90,13 @@ public class ApiClientTest extends BaseTest {
 
         Metric m = client.getMetric(runId,"auc");
         Assert.assertEquals(m.getKey(),"auc");
-        Assert.assertEquals(m.getValue(),1.5);
+        Assert.assertEquals(Double.compare(m.getValue(),1.5),0);
 
         metrics = client.getMetricHistory(runId,"auc");
         Assert.assertEquals(metrics.size(),1);
         m = metrics.get(0);
         Assert.assertEquals(m.getKey(),"auc");
-        Assert.assertEquals(m.getValue(),1.5);
+        Assert.assertEquals(Double.compare(m.getValue(),1.5),0);
     }
 
     @Test (expectedExceptions = HttpServerException.class) // TODO: server should throw 406
