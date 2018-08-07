@@ -75,6 +75,13 @@ public class ApiClient {
         return mapper.readValue(httpCaller._get(builder), GetMetricHistoryResponse.class).getMetrics();
     }
 
+    public ListArtifactsResponse listArtifacts(String runUuid, String path) throws Exception {
+        URIBuilder builder = httpCaller.makeURIBuilder("artifacts/list")
+            .setParameter("run_uuid",runUuid)
+            .setParameter("path",path);
+        return mapper.readValue(httpCaller._get(builder), ListArtifactsResponse.class);
+    }
+
     public Optional<Experiment> getExperimentByName(String experimentName) throws Exception {
         return listExperiments().stream().filter(e -> e.getName().equals(experimentName)).findFirst();
     }
