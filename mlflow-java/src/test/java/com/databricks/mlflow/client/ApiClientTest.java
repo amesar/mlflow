@@ -4,6 +4,7 @@ import java.util.*;
 import org.testng.Assert;
 import org.testng.annotations.*;
 import com.databricks.mlflow.client.objects.*;
+import static com.databricks.mlflow.client.TestUtils.*;
 
 public class ApiClientTest extends BaseTest {
     @Test
@@ -53,13 +54,13 @@ public class ApiClientTest extends BaseTest {
         String runId = runCreated.getRunUuid();
     
         // Log parameters
-        client.logParameter(runId, "min_samples_leaf", "2");
-        client.logParameter(runId, "max_depth", "3");
+        client.logParameter(runId, "min_samples_leaf", TestShared.min_samples_leaf);
+        client.logParameter(runId, "max_depth", TestShared.max_depth);
     
         // Log metrics
-        client.logMetric(runId, "auc", 1.5);
-        client.logMetric(runId, "accuracy_score", 0.667);
-        client.logMetric(runId, "zero_one_loss", 0.333);
+        client.logMetric(runId, "auc", TestShared.auc);
+        client.logMetric(runId, "accuracy_score", TestShared.accuracy_score);
+        client.logMetric(runId, "zero_one_loss", TestShared.zero_one_loss);
     
         // Update finished run
         UpdateRunRequest update = new UpdateRunRequest(runId, "FINISHED", startTime+1001);
@@ -72,31 +73,13 @@ public class ApiClientTest extends BaseTest {
         assertRunInfo(expResponse.getRuns().get(0), experimentId, user, sourceFile);
         
         // Assert run from getRun
-        GetRunResponse run = client.getRun(runId);
+        GetRunResponse rsp = client.getRun(runId);
     
-        RunInfo runInfo = run.getInfo();
+        RunInfo runInfo = rsp.getInfo();
         assertRunInfo(runInfo, experimentId, user, sourceFile);
   
-        List<Param> params = run.getData().getParams();
-        Assert.assertEquals(params.size(),2);
-        assertParam(params,"min_samples_leaf","2");
-        assertParam(params,"max_depth","3");
-  
-        List<Metric> metrics = run.getData().getMetrics();
-        Assert.assertEquals(metrics.size(),3);
-        assertMetric(metrics,"auc",1.5);
-        assertMetric(metrics,"accuracy_score",0.667);
-        assertMetric(metrics,"zero_one_loss",0.333);
-
-        Metric m = client.getMetric(runId,"auc");
-        Assert.assertEquals(m.getKey(),"auc");
-        Assert.assertEquals(Double.compare(m.getValue(),1.5),0);
-
-        metrics = client.getMetricHistory(runId,"auc");
-        Assert.assertEquals(metrics.size(),1);
-        m = metrics.get(0);
-        Assert.assertEquals(m.getKey(),"auc");
-        Assert.assertEquals(Double.compare(m.getValue(),1.5),0);
+        // Assert run params and metrics
+        TestShared.assertParamsAndMetrics(client, rsp, runId) ;
     }
 
     @Test (expectedExceptions = HttpServerException.class) // TODO: server should throw 406

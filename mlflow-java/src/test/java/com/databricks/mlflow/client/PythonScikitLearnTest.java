@@ -11,7 +11,7 @@ import com.databricks.mlflow.client.objects.*;
 */
 public class PythonScikitLearnTest extends BaseTest {
     String expId = "0" ;
-    RunInfo run ;
+    String runId ;
     double auc = 2.0;
     double accuracy_score = 0.9733333333333334;
     double zero_one_loss = 0.026666666666666616;
@@ -21,40 +21,18 @@ public class PythonScikitLearnTest extends BaseTest {
         GetExperimentResponse rsp = client.getExperiment(expId);
         List<RunInfo> runs = rsp.getRuns();
         Assert.assertEquals(runs.size(),1);
-        run = runs.get(0);
+        RunInfo run = runs.get(0);
+        runId = run.getRunUuid();
     }
 
     @Test (dependsOnMethods={"checkExperiment"})
-    public void checkRunInfo() throws Exception {
-        String runId = run.getRunUuid();
-        GetRunResponse rsp = client.getRun(runId);
-        RunInfo runInfo = rsp.getInfo();
-
-        List<Param> params = rsp.getData().getParams();
-        Assert.assertEquals(params.size(),2);
-        assertParam(params,"min_samples_leaf","2");
-        assertParam(params,"max_depth","3");
-
-        List<Metric> metrics = rsp.getData().getMetrics();
-        Assert.assertEquals(metrics.size(),3);
-        assertMetric(metrics,"auc",auc);
-        assertMetric(metrics,"accuracy_score",accuracy_score);
-        assertMetric(metrics,"zero_one_loss",zero_one_loss);
-
-        Metric m = client.getMetric(runId,"auc");
-        Assert.assertEquals(m.getKey(),"auc");
-        Assert.assertEquals(m.getValue(),auc);
-
-        metrics = client.getMetricHistory(runId,"auc");
-        Assert.assertEquals(metrics.size(),1);
-        m = metrics.get(0);
-        Assert.assertEquals(m.getKey(),"auc");
-        Assert.assertEquals(m.getValue(),auc);
+    public void checkParamsAndMetrics() throws Exception {
+        TestShared.assertParamsAndMetrics(client, client.getRun(runId), runId);
     }
 
     @Test (dependsOnMethods={"checkExperiment"})
     public void checkListArtifacts() throws Exception {
-        ListArtifactsResponse rsp = client.listArtifacts(run.getRunUuid(),"");
+        ListArtifactsResponse rsp = client.listArtifacts(runId,"");
         List<FileInfo> files = rsp.getFiles();
         Assert.assertEquals(files.size(),3);
         assertFile(files,"confusion_matrix.txt");
@@ -64,9 +42,9 @@ public class PythonScikitLearnTest extends BaseTest {
 
     @Test (dependsOnMethods={"checkExperiment"})
     public void checkGetArtifact() throws Exception {
-        byte[] bytes = client.getArtifact(run.getRunUuid(),"model/model.pkl");
+        byte[] bytes = client.getArtifact(runId,"model/model.pkl");
         Assert.assertTrue(bytes.length > 0);
-        bytes = client.getArtifact(run.getRunUuid(),"confusion_matrix.txt");
+        bytes = client.getArtifact(runId,"confusion_matrix.txt");
         Assert.assertTrue(bytes.length > 0);
     }
 

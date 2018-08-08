@@ -13,23 +13,4 @@ public class BaseTest {
     public static void beforeSuite() throws Exception {
         client = new ApiClient(apiUri, true);
     }
-
-    public String createExperimentName() {
-        return "TestExp_"+System.currentTimeMillis();
-    }
-
-    void assertRunInfo(RunInfo runInfo, String experimentId, String user, String sourceName) {
-        Assert.assertEquals(runInfo.getExperimentId(),experimentId);
-        Assert.assertEquals(runInfo.getUserId(),user);
-        Assert.assertEquals(runInfo.getSourceName(),sourceName);
-    }
-    void assertParam(List<Param> params, String key, String value) {
-        Assert.assertTrue(params.stream().filter(e -> e.getKey().equals(key) && e.getValue().equals(value)).findFirst().isPresent());
-    }
-    void assertMetric(List<Metric> metrics, String key, Double value) {
-        Assert.assertTrue(metrics.stream().filter(e -> e.getKey().equals(key) && Double.compare(e.getValue(),value)==0).findFirst().isPresent());
-    }
-    java.util.Optional<Experiment> getExperimentByName(List<Experiment> exps, String expName) {
-        return exps.stream().filter(e -> e.getName().equals(expName)).findFirst();
-    }
 }
