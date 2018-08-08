@@ -53,13 +53,21 @@ public class PythonScikitLearnTest extends BaseTest {
     }
 
     @Test (dependsOnMethods={"checkExperiment"})
-    public void checkArtifacts() throws Exception {
+    public void checkListArtifacts() throws Exception {
         ListArtifactsResponse rsp = client.listArtifacts(run.getRunUuid(),"");
         List<FileInfo> files = rsp.getFiles();
         Assert.assertEquals(files.size(),3);
         assertFile(files,"confusion_matrix.txt");
         assertFile(files,"classification_report.txt");
         assertFile(files,"model");
+    }
+
+    @Test (dependsOnMethods={"checkExperiment"})
+    public void checkGetArtifact() throws Exception {
+        byte[] bytes = client.getArtifact(run.getRunUuid(),"model/model.pkl");
+        Assert.assertTrue(bytes.length > 0);
+        bytes = client.getArtifact(run.getRunUuid(),"confusion_matrix.txt");
+        Assert.assertTrue(bytes.length > 0);
     }
 
     private void assertFile(List<FileInfo> files, String path) {
