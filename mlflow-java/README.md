@@ -45,7 +45,7 @@ public CreateExperimentResponse createExperiment(String experimentName)
 
 public Experiment getExperiment(String experimentId) 
 
-public List<Experiment> getExperiments() 
+public List<Experiment> listExperiments() 
 
 
 public CreateRunResponse createRun(CreateRunRequest request)
@@ -63,7 +63,10 @@ public Metric getMetric(String runUuid, String metricKey)
 
 public List<Metric> getMetricHistory(String runUuid, String metricKey)
 
+
 public ListArtifactsResponse listArtifacts(String runUuid, String path) 
+
+public byte[] getArtifact(String runUuid, String path) 
 ```
 
 ## Usage
