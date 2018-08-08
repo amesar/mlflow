@@ -28,7 +28,7 @@ public class HttpCaller {
         if (verbose) {
             LogManager.getLogger("com.databricks").setLevel(Level.DEBUG);
         }
-        logger.info("apiUri: "+apiUri);
+        logger.debug("apiUri: "+apiUri);
     }
 
     public String get(String path) throws Exception {
@@ -40,21 +40,32 @@ public class HttpCaller {
     }
 
     public String _get(String uri) throws Exception {
-        logger.info("uri: "+uri);
+        logger.debug("uri: "+uri);
         HttpGet request = new HttpGet(uri);
         HttpResponse response = httpClient.execute(request);
         checkError(response);
         HttpEntity entity = response.getEntity();
         String ojson = EntityUtils.toString(entity);
-        logger.info("response: "+ojson);
+        logger.debug("response: "+ojson);
         return ojson;
+    }
+
+    public byte[] _getAsBytes(String uri) throws Exception {
+        logger.debug("uri: "+uri);
+        HttpGet request = new HttpGet(uri);
+        HttpResponse response = httpClient.execute(request);
+        checkError(response);
+        HttpEntity entity = response.getEntity();
+        byte[] bytes = EntityUtils.toByteArray(entity);
+        logger.debug("response: #bytes="+bytes.length);
+        return bytes;
     }
 
     public String post(String path, String ijson) throws Exception {
         String uri = makeUri(path);
-        logger.info("uri: "+uri);
+        logger.debug("uri: "+uri);
         StringEntity ientity = new StringEntity(ijson);
-        logger.info("request: "+ijson);
+        logger.debug("request: "+ijson);
 
         HttpPost request = new HttpPost(uri);
         request.setEntity(ientity);
@@ -62,7 +73,7 @@ public class HttpCaller {
         HttpEntity oentity = response.getEntity();
         checkError(response);
         String ojson = EntityUtils.toString(oentity);
-        logger.info("response: "+ojson);
+        logger.debug("response: "+ojson);
         return ojson;
     }
 
