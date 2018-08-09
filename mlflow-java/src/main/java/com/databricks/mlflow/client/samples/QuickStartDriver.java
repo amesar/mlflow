@@ -15,7 +15,8 @@ public class QuickStartDriver {
             System.exit(1);
         }
         boolean verbose = args.length < 2 ? false : Boolean.parseBoolean("true");
-        ApiClient client = new ApiClient(args[0], verbose);
+        ApiClient client = new ApiClient(args[0],"foo","nar");
+        client.setVerbose(verbose);
 
         System.out.println("====== createExperiment");
         String expName = "Exp_"+System.currentTimeMillis();
