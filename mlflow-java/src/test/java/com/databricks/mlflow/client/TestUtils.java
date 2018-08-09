@@ -24,6 +24,6 @@ public class TestUtils {
     }
 
     static public String createExperimentName() {
-        return "TestExp_"+System.currentTimeMillis();
+        return "TestExp_" + UUID.randomUUID().toString();
     }
 }
