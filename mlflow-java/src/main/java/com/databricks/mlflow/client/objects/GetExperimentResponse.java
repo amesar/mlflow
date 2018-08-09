@@ -9,7 +9,7 @@ public class GetExperimentResponse {
     public Experiment getExperiment() { return experiment; }
     public void setExperiment(Experiment experiment) { this.experiment= experiment; }
 
-    private List<RunInfo> runs;
+    private List<RunInfo> runs = Collections.emptyList();
     @JsonProperty("runs")
     public List<RunInfo> getRuns() { return runs; }
     public void setRuns(List<RunInfo> runs) { this.runs = runs; }

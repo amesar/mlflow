@@ -4,9 +4,8 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ListExperimentsResponse{
-    private List<Experiment> experiments; 
-
     @JsonProperty("experiments")
+    private List<Experiment> experiments = Collections.emptyList();
     public List<Experiment> getExperiments() { return experiments; }
     public void setExperiment(List<Experiment> experiments) { this.experiments= experiments; }
  

@@ -1,6 +1,6 @@
 package com.databricks.mlflow.client.objects;
 
-import java.util.List;
+import java.util.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GetMetricHistoryResponse {
@@ -11,7 +11,7 @@ public class GetMetricHistoryResponse {
     }
 
     @JsonProperty("metrics")
-    private List<Metric> metrics;
+    private List<Metric> metrics = Collections.emptyList();
     public List<Metric> getMetrics() { return metrics; } ; 
     public void setMetrics() { this.metrics = metrics; } ; 
 

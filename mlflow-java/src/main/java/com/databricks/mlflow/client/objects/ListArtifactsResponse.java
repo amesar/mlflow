@@ -1,6 +1,6 @@
 package com.databricks.mlflow.client.objects;
 
-import java.util.List;
+import java.util.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ListArtifactsResponse {
@@ -12,7 +12,7 @@ public class ListArtifactsResponse {
     }
 
     @JsonProperty("files")
-    private List<FileInfo> files;
+    private List<FileInfo> files = Collections.emptyList();
     public List<FileInfo> getFiles() { return files; } ; 
     public void setFiles() { this.files = files; } ; 
 
