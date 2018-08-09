@@ -11,12 +11,17 @@ public class ApiClient {
     private HttpCaller httpCaller ;
 
     public ApiClient(String baseApiUri) throws Exception {
-        this(baseApiUri, false);
+        String apiUri = baseApiUri + "/" + basePath;
+        httpCaller = new HttpCaller(apiUri);
     }
 
-    public ApiClient(String baseApiUri, boolean verbose) throws Exception {
+    public ApiClient(String baseApiUri, String user, String password) throws Exception {
         String apiUri = baseApiUri + "/" + basePath;
-        httpCaller = new HttpCaller(apiUri,verbose);
+        httpCaller = new HttpCaller(apiUri, user, password);
+    }
+
+    public void setVerbose(boolean verbose) {
+        httpCaller.setVerbose(verbose);
     }
 
     public CreateExperimentResponse createExperiment(String experimentName) throws Exception {

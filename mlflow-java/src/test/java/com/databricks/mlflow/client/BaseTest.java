@@ -11,6 +11,7 @@ public class BaseTest {
 
     @BeforeSuite
     public static void beforeSuite() throws Exception {
-        client = new ApiClient(apiUri, true);
+        client = new ApiClient(apiUri);
+        client.setVerbose(true);
     }
 }

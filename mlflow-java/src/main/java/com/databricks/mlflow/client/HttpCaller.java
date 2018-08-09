@@ -12,23 +12,38 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.auth.AuthScope;
+
 
 public class HttpCaller {
     private static final Logger logger = Logger.getLogger(HttpCaller.class);
     private String apiUri ;
     private String basePath = "api/2.0/preview/mlflow";
-    private HttpClient httpClient = HttpClientBuilder.create().build();
+    private HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+    private HttpClient httpClient ;
 
     public HttpCaller(String apiUri) throws Exception {
-        this(apiUri, false);
+        this(apiUri, null, null);
     }
 
-    public HttpCaller(String apiUri, boolean verbose) throws Exception {
+    public HttpCaller(String apiUri, String user, String password) throws Exception {
         this.apiUri = apiUri;
+        logger.info("apiUri: "+apiUri+" user="+user);
+        if (user != null && password != null) {
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            provider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, password));
+            httpClientBuilder.setDefaultCredentialsProvider(provider);
+        }
+        httpClient = httpClientBuilder.build();
+    }
+
+    public void setVerbose(boolean verbose) {
         if (verbose) {
             LogManager.getLogger("com.databricks").setLevel(Level.DEBUG);
         }
-        logger.debug("apiUri: "+apiUri);
     }
 
     public String get(String path) throws Exception {
