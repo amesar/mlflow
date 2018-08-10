@@ -23,8 +23,9 @@ public class Param {
     @Override
     public String toString() {
         return
-              "key=" + key 
+              "[key=" + key 
             + " value=" + value 
+            + "]"
         ;
     }
 }

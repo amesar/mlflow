@@ -28,9 +28,10 @@ public class LogParam {
     @Override
     public String toString() {
         return
-              "runUuid=" + runUuid
+              "[runUuid=" + runUuid
             + " key=" + key
             + " value=" + value 
+            + "]"
         ;
     }
 }

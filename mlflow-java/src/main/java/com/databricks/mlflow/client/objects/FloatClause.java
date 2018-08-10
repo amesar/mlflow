@@ -23,8 +23,9 @@ public class FloatClause {
     @Override
     public String toString() {
         return
-               "comparator=" + comparator
+               "[comparator=" + comparator
              + "value=" + value
+             + "]"
         ;
     }
 }
