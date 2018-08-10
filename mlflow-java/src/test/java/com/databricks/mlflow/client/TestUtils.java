@@ -5,6 +5,13 @@ import org.testng.Assert;
 import com.databricks.mlflow.client.objects.*;
 
 public class TestUtils {
+
+    final static double EPSILON = 0.0001;
+
+    static boolean equals(double a, double b){
+        return a == b ? true : Math.abs(a - b) < EPSILON;
+    }
+
     static void assertRunInfo(RunInfo runInfo, String experimentId, String user, String sourceName) {
         Assert.assertEquals(runInfo.getExperimentId(),experimentId);
         Assert.assertEquals(runInfo.getUserId(),user);
@@ -16,7 +23,7 @@ public class TestUtils {
     }
 
     static void assertMetric(List<Metric> metrics, String key, Double value) {
-        Assert.assertTrue(metrics.stream().filter(e -> e.getKey().equals(key) && Double.compare(e.getValue(),value)==0).findFirst().isPresent());
+        Assert.assertTrue(metrics.stream().filter(e -> e.getKey().equals(key) && equals(e.getValue(),value)).findFirst().isPresent());
     }
 
     static java.util.Optional<Experiment> getExperimentByName(List<Experiment> exps, String expName) {
