@@ -100,6 +100,12 @@ public class ApiClient {
         return mapper.readValue(ojson, ParameterSearchResponse.class);
     }
 
+    public MetricSearchResponse search(MetricSearchRequest search) throws Exception {
+        String ijson = mapper.writeValueAsString(search);
+        String ojson = post("runs/search",ijson);
+        return mapper.readValue(ojson, MetricSearchResponse.class);
+    }
+
     public Optional<Experiment> getExperimentByName(String experimentName) throws Exception {
         return listExperiments().stream().filter(e -> e.getName().equals(experimentName)).findFirst();
     }
