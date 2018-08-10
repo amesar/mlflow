@@ -50,9 +50,9 @@ public class ApiClient {
         post("runs/update",mapper.writeValueAsString(request));
     }
 
-    public GetRunResponse getRun(String runUuid) throws Exception {
+    public Run getRun(String runUuid) throws Exception {
         URIBuilder builder = httpCaller.makeURIBuilder("runs/get").setParameter("run_uuid",runUuid);
-        return mapper.readValue(httpCaller._get(builder), GetRunResponseWrapper.class).getRun();
+        return mapper.readValue(httpCaller._get(builder), GetRunResponse.class).getRun();
     }
 
     public void logParameter(String runUuid, String key, String value) throws Exception {

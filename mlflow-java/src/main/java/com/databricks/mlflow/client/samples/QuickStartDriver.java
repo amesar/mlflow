@@ -69,7 +69,7 @@ public class QuickStartDriver {
         client.updateRun(update);
     
         // Get run details
-        GetRunResponse run = client.getRun(runId);
+        Run run = client.getRun(runId);
         System.out.println("GetRun: "+run);
     }
 }

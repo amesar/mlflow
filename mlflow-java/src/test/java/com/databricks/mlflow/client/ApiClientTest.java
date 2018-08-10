@@ -73,13 +73,13 @@ public class ApiClientTest extends BaseTest {
         assertRunInfo(expResponse.getRuns().get(0), experimentId, user, sourceFile);
         
         // Assert run from getRun
-        GetRunResponse rsp = client.getRun(runId);
+        Run run = client.getRun(runId);
     
-        RunInfo runInfo = rsp.getInfo();
+        RunInfo runInfo = run.getInfo();
         assertRunInfo(runInfo, experimentId, user, sourceFile);
   
         // Assert run params and metrics
-        TestShared.assertParamsAndMetrics(client, rsp, runId) ;
+        TestShared.assertParamsAndMetrics(client, run, runId) ;
     }
 
     @Test (expectedExceptions = HttpServerException.class) // TODO: server should throw 406

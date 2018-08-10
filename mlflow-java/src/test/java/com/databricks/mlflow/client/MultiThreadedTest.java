@@ -51,19 +51,19 @@ public class MultiThreadedTest extends BaseTest {
         assertRunInfo(expResponse.getRuns().get(0), expId, user, sourceFile);
 
         // Assert run from getRun
-        GetRunResponse rsp = client.getRun(runId);
-        RunInfo runInfo = rsp.getInfo();
+        Run run = client.getRun(runId);
+        RunInfo runInfo = run.getInfo();
         assertRunInfo(runInfo, expId, user, sourceFile);
 
         // Assert run params
-        List<Param> params = rsp.getData().getParams();
+        List<Param> params = run.getData().getParams();
         Assert.assertEquals(params.size(),n);
         for (int j=0 ; j < n ; j++) {
             assertParam(params,"p"+j,""+(dval+1));
         }
 
         // Assert run metrics
-        List<Metric> metrics = rsp.getData().getMetrics();
+        List<Metric> metrics = run.getData().getMetrics();
         Assert.assertEquals(metrics.size(),n+1);
         for (int j=0 ; j < n+1 ; j++) {
             assertMetric(metrics,"m"+j,dval+1);
