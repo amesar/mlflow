@@ -23,8 +23,9 @@ public class ParameterSearchExpression {
     @Override
     public String toString() {
         return
-             "key="+key
+             "[key="+key
              + " stringClause="+stringClause
+             + "]"
         ;
     }
 }

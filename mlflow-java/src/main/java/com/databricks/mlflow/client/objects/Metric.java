@@ -21,9 +21,10 @@ public class Metric {
     @Override
     public String toString() {
         return
-              "key=" + key 
+              "[key=" + key 
             + " value=" + value 
             + " timestamp=" + timestamp 
+            + "]"
         ;
     }
 }

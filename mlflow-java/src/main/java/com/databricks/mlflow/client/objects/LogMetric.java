@@ -34,10 +34,11 @@ public class LogMetric {
     @Override
     public String toString() {
         return
-              "runUuid=" + runUuid 
+              "[runUuid=" + runUuid 
             + " key=" + key 
             + " value=" + value 
             + " timestamp=" + timestamp 
+            + "]"
         ;
     }
 }

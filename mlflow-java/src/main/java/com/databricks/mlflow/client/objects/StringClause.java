@@ -23,8 +23,9 @@ public class StringClause {
     @Override
     public String toString() {
         return
-               "comparator=" + comparator
+               "[comparator=" + comparator
              + "value=" + value
+             + "]"
         ;
     }
 }
