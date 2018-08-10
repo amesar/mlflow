@@ -106,6 +106,23 @@ public class ApiClientTest extends BaseTest {
         assertParam(params,key,value);
     }
 
+    @Test (dependsOnMethods={"addGetRun"})
+    public void checkSearchMetrics() throws Exception {
+        String key = "auc";
+        double value = 2;
+        FloatClause clause = new FloatClause("=",value);
+        MetricSearchExpression expression = new MetricSearchExpression(clause,key);
+        List<MetricSearchExpressionWrapper> expressions = Collections.singletonList(new MetricSearchExpressionWrapper(expression));
+        List<Integer> expIds = Collections.singletonList(0);
+        MetricSearchRequest search = new MetricSearchRequest(expIds,expressions);
+
+        MetricSearchResponse rsp = client.search(search);
+        Assert.assertEquals(rsp.getRuns().size(),1);
+        Run run = rsp.getRuns().get(0);
+        List<Metric> metrics = run.getData().getMetrics();
+        assertMetric(metrics,key,value);
+    }
+
     @Test (expectedExceptions = HttpServerException.class) // TODO: server should throw 406
     public void createExistingExperiment() throws Exception {
         String expName = createExperimentName();
