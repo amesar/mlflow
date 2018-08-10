@@ -112,13 +112,13 @@ public class ApiClientTest extends BaseTest {
 	@Test(dependsOnMethods={"addGetRun"}, dataProvider = "searchParameterRequests")
 	public void testSearchParameters(String comparator, String key, String value, int numResults) throws Exception {
         String expectedValue = "3";
-        StringClause clause = new StringClause(comparator,value);
-        ParameterSearchExpression expression = new ParameterSearchExpression(clause,key);
-        List<ParameterSearchExpressionWrapper> expressions = Collections.singletonList(new ParameterSearchExpressionWrapper(expression));
-        List<Integer> expIds = Collections.singletonList(0);
-        ParameterSearchRequest search = new ParameterSearchRequest(expIds,expressions);
-
-        ParameterSearchResponse rsp = client.search(search);
+        ParameterSearchResponse rsp = client.search(new int[] {0}, new ParameterSearch[] { new ParameterSearch(key,comparator,value) });
+        Assert.assertEquals(rsp.getRuns().size(),numResults);
+        if (numResults > 0) {
+            Run run = rsp.getRuns().get(0);
+            List<Param> params = run.getData().getParams();
+            assertParam(params,key,expectedValue);
+        }
         Assert.assertEquals(rsp.getRuns().size(),numResults);
         if (numResults > 0) {
             Run run = rsp.getRuns().get(0);
@@ -150,13 +150,7 @@ public class ApiClientTest extends BaseTest {
     @Test(dependsOnMethods={"addGetRun"}, dataProvider = "searchMetricRequests")
     public void checkSearchMetrics(String comparator, String key, double value, int numResults) throws Exception {
         double expectedValue = 2;
-        FloatClause clause = new FloatClause(comparator,value);
-        MetricSearchExpression expression = new MetricSearchExpression(clause,key);
-        List<MetricSearchExpressionWrapper> expressions = Collections.singletonList(new MetricSearchExpressionWrapper(expression));
-        List<Integer> expIds = Collections.singletonList(0);
-        MetricSearchRequest search = new MetricSearchRequest(expIds,expressions);
-
-        MetricSearchResponse rsp = client.search(search);
+        MetricSearchResponse rsp = client.search(new int[] {0}, new MetricSearch[] { new MetricSearch(key,comparator,value) });
         Assert.assertEquals(rsp.getRuns().size(),numResults);
         if (numResults > 0) {
             Run run = rsp.getRuns().get(0);
