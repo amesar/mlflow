@@ -6,11 +6,13 @@ import com.databricks.mlflow.client.ApiClient
 import com.databricks.mlflow.client.objects._
 
 class BaseTest() {
-  val apiUri = "http://localhost:5001";
+  val apiUriDefault = "http://localhost:5001";
   var client: ApiClient = null 
 
   @BeforeClass
   def BeforeClass() {
+      val apiUriProp = sys.env("MLFLOW_TRACKING_URI")
+      val apiUri = if (apiUriProp == null) apiUriDefault else apiUriProp
       client = new ApiClient(apiUri);
   }
 
