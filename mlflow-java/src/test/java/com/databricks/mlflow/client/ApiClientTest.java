@@ -1,12 +1,16 @@
 package com.databricks.mlflow.client;
 
 import java.util.*;
+import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.*;
 import com.databricks.mlflow.client.objects.*;
 import static com.databricks.mlflow.client.TestUtils.*;
 
 public class ApiClientTest extends BaseTest {
+    private static final Logger logger = Logger.getLogger(ApiClientTest.class);
+    String runId ;
+
     @Test
     public void getCreateExperimentTest() throws Exception {
         String expName = createExperimentName();
@@ -51,7 +55,8 @@ public class ApiClientTest extends BaseTest {
         String sourceFile = "MyFile.java";
         CreateRunRequest request = new CreateRunRequest(experimentId, "run_for_"+experimentId, "LOCAL", sourceFile, startTime, user);     
         RunInfo runCreated = client.createRun(request);
-        String runId = runCreated.getRunUuid();
+        runId = runCreated.getRunUuid();
+        logger.debug("runId="+runId);
     
         // Log parameters
         client.logParameter(runId, "min_samples_leaf", TestShared.min_samples_leaf);
@@ -77,9 +82,28 @@ public class ApiClientTest extends BaseTest {
     
         RunInfo runInfo = run.getInfo();
         assertRunInfo(runInfo, experimentId, user, sourceFile);
-  
-        // Assert run params and metrics
-        TestShared.assertParamsAndMetrics(client, run, runId) ;
+    }
+
+    @Test (dependsOnMethods={"addGetRun"})
+    public void checkParamsAndMetrics() throws Exception {
+        TestShared.assertParamsAndMetrics(client, client.getRun(runId), runId);
+    }
+
+    @Test (dependsOnMethods={"addGetRun"})
+    public void checkSearchParameters() throws Exception {
+        String key = "max_depth";
+        String value = "3";
+        StringClause clause = new StringClause("=",value);
+        ParameterSearchExpression expression = new ParameterSearchExpression(clause,key);
+        List<ParameterSearchExpressionWrapper> expressions = Collections.singletonList(new ParameterSearchExpressionWrapper(expression));
+        List<Integer> expIds = Collections.singletonList(0);
+        ParameterSearchRequest search = new ParameterSearchRequest(expIds,expressions);
+
+        ParameterSearchResponse rsp = client.search(search);
+        Assert.assertEquals(rsp.getRuns().size(),1);
+        Run run = rsp.getRuns().get(0);
+        List<Param> params = run.getData().getParams();
+        assertParam(params,key,value);
     }
 
     @Test (expectedExceptions = HttpServerException.class) // TODO: server should throw 406
