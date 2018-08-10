@@ -12,13 +12,13 @@ public class TestShared {
     static String min_samples_leaf = "2";
     static String max_depth = "3";
 
-    static public void assertParamsAndMetrics(ApiClient client, GetRunResponse rsp, String runId) throws Exception {
-        List<Param> params = rsp.getData().getParams();
+    static public void assertParamsAndMetrics(ApiClient client, Run run, String runId) throws Exception {
+        List<Param> params = run.getData().getParams();
         Assert.assertEquals(params.size(),2);
         assertParam(params,"min_samples_leaf",min_samples_leaf);
         assertParam(params,"max_depth",max_depth);
 
-        List<Metric> metrics = rsp.getData().getMetrics();
+        List<Metric> metrics = run.getData().getMetrics();
         Assert.assertEquals(metrics.size(),3);
         assertMetric(metrics,"auc",auc);
         assertMetric(metrics,"accuracy_score",accuracy_score);
