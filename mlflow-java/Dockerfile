@@ -4,7 +4,7 @@ RUN apt-get update
 RUN apt-get install -y git
 RUN apt-get install -y python3-tk
 
-RUN pip install mlflow
+RUN pip install mlflow==0.4.1
 RUN pip install scikit-learn==0.19.1
 RUN pip install scipy==1.1.0
 RUN pip install matplotlib==2.2.2

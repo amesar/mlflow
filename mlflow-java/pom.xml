@@ -10,9 +10,12 @@
   </properties>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.databricks.mlflow</groupId>
-  <artifactId>mlflow-java</artifactId>
+  <artifactId>mlflow-java-client</artifactId>
   <packaging>jar</packaging>
+<!--
   <version>1.0-SNAPSHOT</version>
+-->
+  <version>0.4.1</version>
   <name>mlflow-java</name>
   <url>http://maven.apache.org</url>
   <dependencies>
