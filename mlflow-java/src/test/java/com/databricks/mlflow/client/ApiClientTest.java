@@ -19,6 +19,16 @@ public class ApiClientTest extends BaseTest {
         Assert.assertEquals(exp.getExperiment().getName(),expName);
     }
 
+    @Test (expectedExceptions = HttpServerException.class) // TODO: server should throw 406
+    public void createExistingExperiment() throws Exception {
+        String expName = createExperimentName();
+        CreateExperimentResponse expCreate = client.createExperiment(expName);
+        GetExperimentResponse exp = client.getExperiment(expCreate.getExperimentId());
+        Assert.assertEquals(exp.getExperiment().getName(),expName);
+
+        client.createExperiment(expName);
+    }
+
     @Test
     public void listExperimentsTest() throws Exception {
         List<Experiment> expsBefore = client.listExperiments();
@@ -89,47 +99,69 @@ public class ApiClientTest extends BaseTest {
         TestShared.assertParamsAndMetrics(client, client.getRun(runId), runId);
     }
 
-    @Test (dependsOnMethods={"addGetRun"})
-    public void checkSearchParameters() throws Exception {
-        String key = "max_depth";
-        String value = "3";
-        StringClause clause = new StringClause("=",value);
+	@DataProvider
+	public Object[][] searchParameterRequests() {
+		return new Object[][]{
+			{ "=",  "max_depth", "3" , 1},
+            { "!=", "max_depth", "x" , 1},
+			{ "=",  "max_depth", "x" , 0},
+            { "!=", "max_depth", "3" , 0}
+		};
+    }
+
+	@Test(dependsOnMethods={"addGetRun"}, dataProvider = "searchParameterRequests")
+	public void testSearchParameters(String comparator, String key, String value, int numResults) throws Exception {
+        String expectedValue = "3";
+        StringClause clause = new StringClause(comparator,value);
         ParameterSearchExpression expression = new ParameterSearchExpression(clause,key);
         List<ParameterSearchExpressionWrapper> expressions = Collections.singletonList(new ParameterSearchExpressionWrapper(expression));
         List<Integer> expIds = Collections.singletonList(0);
         ParameterSearchRequest search = new ParameterSearchRequest(expIds,expressions);
 
         ParameterSearchResponse rsp = client.search(search);
-        Assert.assertEquals(rsp.getRuns().size(),1);
-        Run run = rsp.getRuns().get(0);
-        List<Param> params = run.getData().getParams();
-        assertParam(params,key,value);
+        Assert.assertEquals(rsp.getRuns().size(),numResults);
+        if (numResults > 0) {
+            Run run = rsp.getRuns().get(0);
+            List<Param> params = run.getData().getParams();
+            assertParam(params,key,expectedValue);
+        }
     }
 
-    @Test (dependsOnMethods={"addGetRun"})
-    public void checkSearchMetrics() throws Exception {
-        String key = "auc";
-        double value = 2;
-        FloatClause clause = new FloatClause("=",value);
+	@DataProvider
+	public Object[][] searchMetricRequests() {
+		return new Object[][]{
+			{ "=",   "auc", 2 , 1},
+			{ ">",   "auc", 1 , 1},
+			{ ">=",  "auc", 1 , 1},
+			{ ">=",  "auc", 2 , 1},
+			{ "<",   "auc", 3 , 1},
+			{ "<=",  "auc", 3 , 1},
+			{ "<=",  "auc", 2 , 1},
+			{ "!=",  "auc", 1 , 1},
+			{ "=",   "auc", 9 , 0},
+			{ "!=",  "auc", 2 , 0},
+			{ ">",   "auc", 9 , 0},
+			{ ">=",  "auc", 9 , 0},
+			{ "<",   "auc", 1 , 0},
+			{ "<=",  "auc", 1 , 0}
+		};
+    }
+
+    @Test(dependsOnMethods={"addGetRun"}, dataProvider = "searchMetricRequests")
+    public void checkSearchMetrics(String comparator, String key, double value, int numResults) throws Exception {
+        double expectedValue = 2;
+        FloatClause clause = new FloatClause(comparator,value);
         MetricSearchExpression expression = new MetricSearchExpression(clause,key);
         List<MetricSearchExpressionWrapper> expressions = Collections.singletonList(new MetricSearchExpressionWrapper(expression));
         List<Integer> expIds = Collections.singletonList(0);
         MetricSearchRequest search = new MetricSearchRequest(expIds,expressions);
 
         MetricSearchResponse rsp = client.search(search);
-        Assert.assertEquals(rsp.getRuns().size(),1);
-        Run run = rsp.getRuns().get(0);
-        List<Metric> metrics = run.getData().getMetrics();
-        assertMetric(metrics,key,value);
-    }
-
-    @Test (expectedExceptions = HttpServerException.class) // TODO: server should throw 406
-    public void createExistingExperiment() throws Exception {
-        String expName = createExperimentName();
-        CreateExperimentResponse expCreate = client.createExperiment(expName);
-        GetExperimentResponse exp = client.getExperiment(expCreate.getExperimentId());
-        Assert.assertEquals(exp.getExperiment().getName(),expName);
-
-        client.createExperiment(expName);
+        Assert.assertEquals(rsp.getRuns().size(),numResults);
+        if (numResults > 0) {
+            Run run = rsp.getRuns().get(0);
+            List<Metric> metrics = run.getData().getMetrics();
+            assertMetric(metrics,key,expectedValue);
+        }
     }
 }
