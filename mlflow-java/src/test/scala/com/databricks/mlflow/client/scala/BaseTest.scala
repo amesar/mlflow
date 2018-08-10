@@ -4,6 +4,7 @@ import org.testng.Assert._
 import org.testng.annotations._
 import com.databricks.mlflow.client.ApiClient
 import com.databricks.mlflow.client.objects._
+import scala.util.Properties;
 
 class BaseTest() {
   val apiUriDefault = "http://localhost:5001";
@@ -11,8 +12,7 @@ class BaseTest() {
 
   @BeforeClass
   def BeforeClass() {
-      val apiUriProp = sys.env("MLFLOW_TRACKING_URI")
-      val apiUri = if (apiUriProp == null) apiUriDefault else apiUriProp
+      val apiUri = Properties.envOrElse("MLFLOW_TRACKING_URI",apiUriDefault)
       client = new ApiClient(apiUri);
   }
 
