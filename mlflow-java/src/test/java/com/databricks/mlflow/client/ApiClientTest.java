@@ -119,12 +119,6 @@ public class ApiClientTest extends BaseTest {
             List<Param> params = run.getData().getParams();
             assertParam(params,key,expectedValue);
         }
-        Assert.assertEquals(rsp.getRuns().size(),numResults);
-        if (numResults > 0) {
-            Run run = rsp.getRuns().get(0);
-            List<Param> params = run.getData().getParams();
-            assertParam(params,key,expectedValue);
-        }
     }
 
 	@DataProvider
