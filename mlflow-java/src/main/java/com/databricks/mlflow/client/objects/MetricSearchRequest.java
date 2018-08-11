@@ -24,8 +24,9 @@ public class MetricSearchRequest {
     @Override
     public String toString() {
         return
-             "#experimentIds="+experimentIds.size()
+             "[#experimentIds="+experimentIds.size()
              + " #andedExpressions="+andedExpressions.size()
+             + "]"
         ;
     }
 }

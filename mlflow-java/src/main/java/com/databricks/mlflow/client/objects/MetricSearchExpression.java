@@ -23,8 +23,9 @@ public class MetricSearchExpression {
     @Override
     public String toString() {
         return
-             "key="+key
+             "[key="+key
              + " floatClause="+floatClause
+             + "]"
         ;
     }
 }
