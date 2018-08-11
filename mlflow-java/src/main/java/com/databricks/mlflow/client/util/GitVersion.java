@@ -14,7 +14,12 @@ public class GitVersion {
 
     public String getVersion() throws Exception {
         ClassLoader classLoader = getClass().getClassLoader();
-        InputStream input = classLoader.getResourceAsStream("git.properties");
+        //String file = "git.properties";
+        String file = "com.databricks.mlflow.client.git.properties"; // to be able to get uniquely from classpath
+        InputStream input = classLoader.getResourceAsStream(file);
+        if (input == null) {
+            throw new FileNotFoundException("Cannot find resource "+file);
+        }
         try (BufferedReader buffer = new BufferedReader(new InputStreamReader(input))) {
             return buffer.lines().collect(Collectors.joining("\n"));
         }

@@ -130,7 +130,11 @@
         </executions>
         <configuration>
           <generateGitPropertiesFile>true</generateGitPropertiesFile>
+<!--
           <generateGitPropertiesFilename>src/main/resources/git.properties</generateGitPropertiesFilename>
+          To be able to get uniquely from classpath
+-->
+          <generateGitPropertiesFilename>src/main/resources/com.databricks.mlflow.client.git.properties</generateGitPropertiesFilename>
         </configuration>
       </plugin>
 
