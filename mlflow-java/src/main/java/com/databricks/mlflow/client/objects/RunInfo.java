@@ -57,7 +57,7 @@ public class RunInfo {
     @Override
     public String toString() {
         return
-              "runUuid=" + runUuid 
+              "[runUuid=" + runUuid 
             + " experimentId=" + experimentId 
             + " name=" + name 
             + " sourceType=" + sourceType 
@@ -67,6 +67,7 @@ public class RunInfo {
             + " startTime=" + startTime 
             + " endTime=" + endTime 
             + " artifactUri=" + artifactUri 
+            + "]"
         ;
     }
 }

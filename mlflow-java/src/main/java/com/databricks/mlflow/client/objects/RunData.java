@@ -13,4 +13,13 @@ public class RunData {
     private List<Metric> metrics = Collections.emptyList();
     public List<Metric> getMetrics() { return metrics; }
     public void setMetrics(List<Metric> metrics) { this.metrics = metrics; }
+
+    @Override
+    public String toString() {
+        return
+             "[#params="+params.size()
+             + " #metrics="+params.size()
+             + "]"
+        ;
+    }
 }

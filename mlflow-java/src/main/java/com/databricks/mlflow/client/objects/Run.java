@@ -17,8 +17,8 @@ public class Run {
     @Override
     public String toString() {
         return
-              "info=" + info
-              + " data=" + data
+              "[info=" + info
+              + " data=" + data + "]"
         ;
     }
 }
