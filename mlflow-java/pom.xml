@@ -6,18 +6,19 @@
     <scala.version>2.11.12</scala.version>
     <faster.xml.version>2.9.6</faster.xml.version>
     <httpclient.version>4.5.6</httpclient.version>
+    <git-commit.version>2.2.4</git-commit.version>
+    <mlflow-version>0.4.2</mlflow-version>
     <testng.version>6.14.3</testng.version>
   </properties>
+
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.databricks.mlflow</groupId>
   <artifactId>mlflow-java-client</artifactId>
   <packaging>jar</packaging>
-<!--
-  <version>1.0-SNAPSHOT</version>
--->
-  <version>0.4.2</version>
+  <version>${mlflow-version}</version>
   <name>mlflow-java</name>
   <url>http://maven.apache.org</url>
+
   <dependencies>
     <dependency>
       <groupId>org.scala-lang</groupId>
@@ -45,6 +46,11 @@
       <version>${httpclient.version}</version>
     </dependency>
     <dependency>
+      <groupId>pl.project13.maven</groupId>
+      <artifactId>git-commit-id-plugin</artifactId>
+      <version>${git-commit.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
       <version>${testng.version}</version>
@@ -62,6 +68,7 @@
       </plugins>
     </pluginManagement>
     <plugins>
+
       <plugin>
         <groupId>net.alchim31.maven</groupId>
         <artifactId>scala-maven-plugin</artifactId>
@@ -83,21 +90,50 @@
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <version>2.3</version>
         <executions>
-      <execution>
-          <phase>package</phase>
-          <goals>
+          <execution>
+            <phase>package</phase>
+            <goals>
               <goal>shade</goal>
-          </goals>
-          <configuration>
-          </configuration>
-        </execution>
+            </goals>
+            <configuration>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+                </filter>
+               </filters>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <groupId>pl.project13.maven</groupId>
+        <artifactId>git-commit-id-plugin</artifactId>
+        <version>${git-commit.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>revision</goal>
+             </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <generateGitPropertiesFile>true</generateGitPropertiesFile>
+          <generateGitPropertiesFilename>src/main/resources/git.properties</generateGitPropertiesFilename>
+        </configuration>
+      </plugin>
+
     </plugins>
   </build>
 </project>
