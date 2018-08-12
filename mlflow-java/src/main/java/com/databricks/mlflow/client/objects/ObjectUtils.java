@@ -2,6 +2,8 @@ package com.databricks.mlflow.client.objects;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 public class ObjectUtils {
     public static ParameterSearchRequest makeParameterSearchRequest(int [] experimentIds, ParameterSearch[] clauses) {
@@ -22,5 +24,12 @@ public class ObjectUtils {
         }
         List<Integer> expIds = Arrays.stream(experimentIds).boxed().collect(Collectors.toList());
         return new MetricSearchRequest(expIds,expressions);
+    }
+
+    private static ObjectMapper mapper = new ObjectMapper();
+    private static ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
+
+    public static String toJson(Object obj) throws Exception {
+        return writer.writeValueAsString(obj);
     }
 }
