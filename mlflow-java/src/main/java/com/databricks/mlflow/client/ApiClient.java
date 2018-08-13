@@ -45,8 +45,8 @@ public class ApiClient {
         return mapper.readValue(ojson, CreateRunResponseWrapper.class).getRun().getInfo();
     }
 
-    public void updateRun(UpdateRunRequest request) throws Exception {
-        post("runs/update",mapper.writeValueAsString(request));
+    public void updateRun(String runUuid, String status, long endTime) throws Exception {
+        post("runs/update",mapper.writeValueAsString(new UpdateRunRequest(runUuid, status, endTime)));
     }
 
     public Run getRun(String runUuid) throws Exception {

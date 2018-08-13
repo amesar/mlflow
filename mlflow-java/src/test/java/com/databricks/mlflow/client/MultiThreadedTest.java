@@ -40,8 +40,7 @@ public class MultiThreadedTest extends BaseTest {
         }
 
         // Update finished run
-        UpdateRunRequest update = new UpdateRunRequest(runId, "FINISHED", startTime+1001);
-        client.updateRun(update);
+        client.updateRun(runId, "FINISHED", startTime+1001);
  
         // Assert run from getExperiment
         GetExperimentResponse expResponse = client.getExperiment(expId);

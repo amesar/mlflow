@@ -74,8 +74,7 @@ public class ApiClientTest extends BaseTest {
         client.logMetric(runId, "zero_one_loss", TestShared.zero_one_loss);
     
         // Update finished run
-        UpdateRunRequest update = new UpdateRunRequest(runId, "FINISHED", startTime+1001);
-        client.updateRun(update);
+        client.updateRun(runId, "FINISHED", startTime+1001);
   
         // Assert run from getExperiment
         GetExperimentResponse expResponse = client.getExperiment(expId);

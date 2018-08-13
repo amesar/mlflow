@@ -41,23 +41,24 @@ See [ApiClient.java](src/main/java/com/databricks/mlflow/client/ApiClient.java)
 and [domain objects](src/main/java/com/databricks/mlflow/client/objects).
 
 ```
-public String createExperiment(String experimentName) 
-
 public Experiment getExperiment(String experimentId) 
 
 public List<Experiment> listExperiments() 
 
+public String createExperiment(String experimentName) 
+
+
+public GetRunResponse getRun(String runUuid)
 
 public CreateRunResponse createRun(CreateRunRequest request)
 
-public void updateRun(UpdateRunRequest request)
-
-public GetRunResponse getRun(String runUuid)
+public void updateRun(String runUuid, String status, long endTime) 
 
 
 public void logParameter(String runUuid, String key, String value)
 
 public void logMetric(String runUuid, String key, double value) 
+
 
 public Metric getMetric(String runUuid, String metricKey)
 
@@ -67,6 +68,12 @@ public List<Metric> getMetricHistory(String runUuid, String metricKey)
 public ListArtifactsResponse listArtifacts(String runUuid, String path) 
 
 public byte[] getArtifact(String runUuid, String path) 
+
+
+public ParameterSearchResponse search(int [] experimentIds, ParameterSearch[] clauses) 
+
+public MetricSearchResponse search(int [] experimentIds, MetricSearch[] clauses)
+
 ```
 
 ## Usage
@@ -148,8 +155,7 @@ public class QuickStartDriver {
         client.logMetric(runId, "zero_one_loss", 4.12);
 
         // Update finished run
-        UpdateRunRequest update = new UpdateRunRequest(runId, "FINISHED", startTime+1001);
-        client.updateRun(update);
+        client.updateRun(runId, "FINISHED", startTime+1001);
     
         // Get run details
         GetRunResponse run = client.getRun(runId);

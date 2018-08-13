@@ -61,8 +61,7 @@ class ApiClientTest extends BaseTest {
     client.logMetric(runId, "zero_one_loss", 4.12);
 
     // Update finished run
-    val update = new UpdateRunRequest(runId, "FINISHED", startTime+1001);
-    client.updateRun(update);
+    client.updateRun(runId, "FINISHED", startTime+1001);
     
     // Get run details
     //val run = client.getRun(runId);
