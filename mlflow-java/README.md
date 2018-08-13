@@ -70,9 +70,7 @@ public ListArtifactsResponse listArtifacts(String runUuid, String path)
 public byte[] getArtifact(String runUuid, String path) 
 
 
-public ParameterSearchResponse search(int [] experimentIds, ParameterSearch[] clauses) 
-
-public MetricSearchResponse search(int [] experimentIds, MetricSearch[] clauses)
+public SearchResponse search(int [] experimentIds, BaseSearch[] clauses) 
 
 ```
 

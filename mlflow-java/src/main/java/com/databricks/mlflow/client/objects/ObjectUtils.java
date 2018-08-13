@@ -6,24 +6,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 public class ObjectUtils {
-    public static ParameterSearchRequest makeParameterSearchRequest(int [] experimentIds, ParameterSearch[] clauses) {
-        List<ParameterSearchExpressionWrapper> expressions = new ArrayList<>();
-        for (ParameterSearch cl: clauses) {
-            StringClause clause = new StringClause(cl.getComparator(),cl.getValue());
-            expressions.add(new ParameterSearchExpressionWrapper(new ParameterSearchExpression(clause,cl.getKey())));
+    public static SearchRequest makeSearchRequest(int [] experimentIds, BaseSearch[] clauses) {
+        List<SearchExpressionWrapper> expressions = new ArrayList<>();
+        for (BaseSearch cl: clauses) {
+            if (cl instanceof ParameterSearch) {
+                StringClause clause = new StringClause(cl.getComparator(),((ParameterSearch)cl).getValue());
+                expressions.add(new SearchExpressionWrapper(new ParameterSearchExpression(clause,cl.getKey())));
+            } else {
+                FloatClause clause = new FloatClause(cl.getComparator(),((MetricSearch)cl).getValue());
+                expressions.add(new SearchExpressionWrapper(new MetricSearchExpression(clause,cl.getKey())));
+            }
         }
         List<Integer> expIds = Arrays.stream(experimentIds).boxed().collect(Collectors.toList());
-        return new ParameterSearchRequest(expIds,expressions);
-    }
-
-    public static MetricSearchRequest makeMetricSearchRequest(int [] experimentIds, MetricSearch[] clauses) {
-        List<MetricSearchExpressionWrapper> expressions = new ArrayList<>();
-        for (MetricSearch cl: clauses) {
-            FloatClause clause = new FloatClause(cl.getComparator(),cl.getValue());
-            expressions.add(new MetricSearchExpressionWrapper(new MetricSearchExpression(clause,cl.getKey())));
-        }
-        List<Integer> expIds = Arrays.stream(experimentIds).boxed().collect(Collectors.toList());
-        return new MetricSearchRequest(expIds,expressions);
+        return new SearchRequest(expIds,expressions);
     }
 
     private static ObjectMapper mapper = new ObjectMapper();

@@ -3,10 +3,10 @@ package com.databricks.mlflow.client.objects;
 import java.util.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class MetricSearchRequest {
-    public MetricSearchRequest() {
+public class SearchRequest {
+    public SearchRequest() {
     }
-    public MetricSearchRequest(List<Integer> experimentIds, List<MetricSearchExpressionWrapper> andedExpressions) {
+    public SearchRequest(List<Integer> experimentIds, List<SearchExpressionWrapper> andedExpressions) {
         this.experimentIds = experimentIds;
         this.andedExpressions = andedExpressions;
     }
@@ -17,9 +17,9 @@ public class MetricSearchRequest {
     public void setExperimentIds(List<Integer> experimentIds) { this.experimentIds = experimentIds; }
 
     @JsonProperty("anded_expressions")
-    private List<MetricSearchExpressionWrapper> andedExpressions = Collections.emptyList();
-    public List<MetricSearchExpressionWrapper> getAndedExpressions() { return andedExpressions; }
-    public void setAndedExpressions(List<MetricSearchExpressionWrapper> andedExpressions) { this.andedExpressions = andedExpressions; }
+    private List<SearchExpressionWrapper> andedExpressions = Collections.emptyList();
+    public List<SearchExpressionWrapper> getAndedExpressions() { return andedExpressions; }
+    public void setAndedExpressions(List<SearchExpressionWrapper> andedExpressions) { this.andedExpressions = andedExpressions; }
 
     @Override
     public String toString() {
