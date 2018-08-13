@@ -107,7 +107,7 @@ public class ApiClientTest extends BaseTest {
 	@Test(dependsOnMethods={"addGetRun"}, dataProvider = "searchParameterRequests")
 	public void testSearchParameters(String comparator, String key, String value, int numResults) throws Exception {
         String expectedValue = "3";
-        ParameterSearchResponse rsp = client.search(new int[] {0}, new ParameterSearch[] { new ParameterSearch(key,comparator,value) });
+        SearchResponse rsp = client.search(new int[] {0}, new ParameterSearch[] { new ParameterSearch(key,comparator,value) });
         Assert.assertEquals(rsp.getRuns().size(),numResults);
         if (numResults > 0) {
             Run run = rsp.getRuns().get(0);
@@ -139,7 +139,7 @@ public class ApiClientTest extends BaseTest {
     @Test(dependsOnMethods={"addGetRun"}, dataProvider = "searchMetricRequests")
     public void checkSearchMetrics(String comparator, String key, double value, int numResults) throws Exception {
         double expectedValue = 2;
-        MetricSearchResponse rsp = client.search(new int[] {0}, new MetricSearch[] { new MetricSearch(key,comparator,value) });
+        SearchResponse rsp = client.search(new int[] {0}, new MetricSearch[] { new MetricSearch(key,comparator,value) });
         Assert.assertEquals(rsp.getRuns().size(),numResults);
         if (numResults > 0) {
             Run run = rsp.getRuns().get(0);
