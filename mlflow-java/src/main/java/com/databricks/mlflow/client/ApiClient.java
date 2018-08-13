@@ -94,25 +94,25 @@ public class ApiClient {
     }
 
     /** Convenience method for easier parameter search. */
-    public ParameterSearchResponse search(int [] experimentIds, ParameterSearch[] clauses) throws Exception {
+    public SearchResponse search(int [] experimentIds, ParameterSearch[] clauses) throws Exception {
         return search(ObjectUtils.makeParameterSearchRequest(experimentIds, clauses));
     }
 
-    /** Convenience method for easier metric search. */
-    public MetricSearchResponse search(int [] experimentIds, MetricSearch[] clauses) throws Exception {
+    /** Convenience method for easier parameter search. */
+    public SearchResponse search(int [] experimentIds, MetricSearch[] clauses) throws Exception {
         return search(ObjectUtils.makeMetricSearchRequest(experimentIds, clauses));
     }
 
-    public ParameterSearchResponse search(ParameterSearchRequest search) throws Exception {
+    public SearchResponse search(ParameterSearchRequest search) throws Exception {
         String ijson = mapper.writeValueAsString(search);
         String ojson = post("runs/search",ijson);
-        return mapper.readValue(ojson, ParameterSearchResponse.class);
+        return mapper.readValue(ojson, SearchResponse.class);
     }
 
-    public MetricSearchResponse search(MetricSearchRequest search) throws Exception {
+    public SearchResponse search(MetricSearchRequest search) throws Exception {
         String ijson = mapper.writeValueAsString(search);
         String ojson = post("runs/search",ijson);
-        return mapper.readValue(ojson, MetricSearchResponse.class);
+        return mapper.readValue(ojson, SearchResponse.class);
     }
 
     public Optional<Experiment> getExperimentByName(String experimentName) throws Exception {
