@@ -20,12 +20,11 @@ public class QuickStartDriver {
 
         System.out.println("====== createExperiment");
         String expName = "Exp_"+System.currentTimeMillis();
-        CreateExperimentResponse expResponse = client.createExperiment(expName);
-        String experimentId = expResponse.getExperimentId();
-        System.out.println("createExperiment: "+expResponse);
+        String expId = client.createExperiment(expName);
+        System.out.println("createExperiment: expId="+expId);
 
         System.out.println("====== getExperiment");
-        GetExperimentResponse exp = client.getExperiment(experimentId);
+        GetExperimentResponse exp = client.getExperiment(expId);
         System.out.println("getExperiment: "+exp);
 
         System.out.println("====== listExperiments");
@@ -33,10 +32,10 @@ public class QuickStartDriver {
         System.out.println("#experiments: "+exps.size());
         exps.forEach(e -> System.out.println("  Exp: "+e));
 
-        createRun(client, experimentId);
+        createRun(client, expId);
 
         System.out.println("====== getExperiment");
-        GetExperimentResponse exp2 = client.getExperiment(experimentId);
+        GetExperimentResponse exp2 = client.getExperiment(expId);
         System.out.println("getExperiment: "+exp2);
 
         Optional<Experiment> ee = client.getExperimentByName(expName);

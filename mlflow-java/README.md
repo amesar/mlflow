@@ -41,7 +41,7 @@ See [ApiClient.java](src/main/java/com/databricks/mlflow/client/ApiClient.java)
 and [domain objects](src/main/java/com/databricks/mlflow/client/objects).
 
 ```
-public CreateExperimentResponse createExperiment(String experimentName) 
+public String createExperiment(String experimentName) 
 
 public Experiment getExperiment(String experimentId) 
 
@@ -107,8 +107,7 @@ public class QuickStartDriver {
         ApiClient client = new ApiClient(apiUri, verbose);
 
         System.out.println("====== createExperiment");
-        CreateExperimentResponse expResponse = client.createExperiment("Exp_"+System.currentTimeMillis());
-        String experimentId = expResponse.getExperimentId();
+        String  experimentId = client.createExperiment("Exp_"+System.currentTimeMillis());
         System.out.println("createExperiment: "+expResponse);
 
         System.out.println("====== getExperiment");
