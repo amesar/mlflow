@@ -89,9 +89,8 @@ class ApiClientTest extends BaseTest {
 
     val rsp = client.search(Array(0), Array(new ParameterSearch("max_depth","=","3")))
     assertEquals(rsp.getRuns().size(),1)
-    val run = rsp.getRuns().get(0)
-    val params = run.getData().getParams()
-    TestUtils.assertParam(params,"max_depth","3")
+    val runData = rsp.getRuns().get(0).getData()
+    TestUtils.assertParam(runData.getParams(),"max_depth","3")
   }
 
   def getExperimentByName(exps: Seq[Experiment], experimentName: String) = {

@@ -103,16 +103,14 @@ public class ApiClientTest extends BaseTest {
             { "!=", "max_depth", "3" , 0}
 		};
     }
-
 	@Test(dependsOnMethods={"addGetRun"}, dataProvider = "searchParameterRequests")
 	public void testSearchParameters(String comparator, String key, String value, int numResults) throws Exception {
         String expectedValue = "3";
         SearchResponse rsp = client.search(new int[] {0}, new ParameterSearch[] { new ParameterSearch(key,comparator,value) });
         Assert.assertEquals(rsp.getRuns().size(),numResults);
         if (numResults > 0) {
-            Run run = rsp.getRuns().get(0);
-            List<Param> params = run.getData().getParams();
-            assertParam(params,key,expectedValue);
+            RunData runData = rsp.getRuns().get(0).getData();
+            assertParam(runData.getParams(),key,expectedValue);
         }
     }
 
@@ -135,16 +133,44 @@ public class ApiClientTest extends BaseTest {
 			{ "<=",  "auc", 1 , 0}
 		};
     }
-
     @Test(dependsOnMethods={"addGetRun"}, dataProvider = "searchMetricRequests")
     public void checkSearchMetrics(String comparator, String key, double value, int numResults) throws Exception {
         double expectedValue = 2;
         SearchResponse rsp = client.search(new int[] {0}, new MetricSearch[] { new MetricSearch(key,comparator,value) });
         Assert.assertEquals(rsp.getRuns().size(),numResults);
         if (numResults > 0) {
-            Run run = rsp.getRuns().get(0);
-            List<Metric> metrics = run.getData().getMetrics();
-            assertMetric(metrics,key,expectedValue);
+            RunData runData = rsp.getRuns().get(0).getData();
+            assertMetric(runData.getMetrics(),key,expectedValue);
         }
     }
+
+	@DataProvider
+	public Object[][] searchMixedRequests() {
+		return new Object[][]{
+            { "=",  "max_depth", "3" , "=",  "auc", 2 , 1},
+            { "=",  "max_depth", "3" , "=",  "auc", 9 , 0},
+            { "=",  "max_depth", "9" , "=",  "auc", 2 , 0},
+            { "!=", "max_depth", "9" , "=",  "auc", 2 , 1},
+            { "!=", "max_depth", "9" , "!=", "auc", 9 , 1},
+            { "=",  "max_depth", "3" , ">=", "auc", 2 , 1},
+            { "=",  "max_depth", "3" , "<=", "auc", 2 , 1},
+            { "=",  "max_depth", "3" , ">",  "auc", 2 , 0},
+            { "=",  "max_depth", "3" , "<",  "auc", 2 , 0},
+		};
+    }
+    @Test(dependsOnMethods={"addGetRun"}, dataProvider = "searchMixedRequests")
+    public void checkSearchMixed(String comparator1, String key1, String value1, String comparator2, String key2, double value2, int numResults) throws Exception {
+        String expectedValue1 = "3";
+        double expectedValue2 = 2;
+        SearchResponse rsp = client.search(new int[] {0}, new BaseSearch[] { 
+            new ParameterSearch(key1,comparator1,value1),
+            new MetricSearch(key2,comparator2,value2) });
+        Assert.assertEquals(rsp.getRuns().size(),numResults);
+        if (numResults > 0) {
+            RunData runData = rsp.getRuns().get(0).getData();
+            assertParam(runData.getParams(),key1,expectedValue1);
+            assertMetric(runData.getMetrics(),key2,expectedValue2);
+        }
+    }
+
 }

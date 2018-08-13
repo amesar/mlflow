@@ -94,24 +94,12 @@ public class ApiClient {
     }
 
     /** Convenience method for easier parameter search. */
-    public SearchResponse search(int [] experimentIds, ParameterSearch[] clauses) throws Exception {
-        return search(ObjectUtils.makeParameterSearchRequest(experimentIds, clauses));
+    public SearchResponse search(int [] experimentIds, BaseSearch[] clauses) throws Exception {
+        return search(ObjectUtils.makeSearchRequest(experimentIds, clauses));
     }
 
-    /** Convenience method for easier parameter search. */
-    public SearchResponse search(int [] experimentIds, MetricSearch[] clauses) throws Exception {
-        return search(ObjectUtils.makeMetricSearchRequest(experimentIds, clauses));
-    }
-
-    public SearchResponse search(ParameterSearchRequest search) throws Exception {
-        String ijson = mapper.writeValueAsString(search);
-        String ojson = post("runs/search",ijson);
-        return mapper.readValue(ojson, SearchResponse.class);
-    }
-
-    public SearchResponse search(MetricSearchRequest search) throws Exception {
-        String ijson = mapper.writeValueAsString(search);
-        String ojson = post("runs/search",ijson);
+    public SearchResponse search(SearchRequest search) throws Exception {
+        String ojson = post("runs/search",mapper.writeValueAsString(search));
         return mapper.readValue(ojson, SearchResponse.class);
     }
 
