@@ -15,9 +15,8 @@ public class MultiThreadedTest extends BaseTest {
 
     @BeforeClass
     public void beforeClass() throws Exception {
-        expName = createExperimentName();
-        CreateExperimentResponse expCreate = client.createExperiment(expName);
-        expId = expCreate.getExperimentId();
+        expName = createExperimentName() + "_MultiThreaded";
+        expId = client.createExperiment(expName);
     }
 
     @Test(threadPoolSize = 3, invocationCount = invocationCount,  timeOut = 10000)

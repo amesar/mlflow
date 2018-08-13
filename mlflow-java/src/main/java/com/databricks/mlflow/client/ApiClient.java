@@ -24,11 +24,10 @@ public class ApiClient {
         httpCaller.setVerbose(verbose);
     }
 
-    public CreateExperimentResponse createExperiment(String experimentName) throws Exception {
-        CreateExperimentRequest request = new CreateExperimentRequest(experimentName);
-        String ijson = mapper.writeValueAsString(request);
+    public String createExperiment(String experimentName) throws Exception {
+        String ijson = mapper.writeValueAsString(new CreateExperimentRequest(experimentName));
         String ojson = post("experiments/create",ijson);
-        return mapper.readValue(ojson, CreateExperimentResponse.class);
+        return mapper.readValue(ojson, CreateExperimentResponse.class).getExperimentId();
     }
 
     public List<Experiment> listExperiments() throws Exception {
@@ -122,7 +121,7 @@ public class ApiClient {
 
     public String getOrCreateExperimentId(String experimentName) throws Exception {
         Optional<Experiment> opt = getExperimentByName(experimentName);
-        return opt.isPresent() ? opt.get().getExperimentId() : createExperiment(experimentName).getExperimentId();
+        return opt.isPresent() ? opt.get().getExperimentId() : createExperiment(experimentName);
     }
 
     public String get(String path) throws Exception {

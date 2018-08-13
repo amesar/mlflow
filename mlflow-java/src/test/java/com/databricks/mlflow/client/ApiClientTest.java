@@ -14,18 +14,15 @@ public class ApiClientTest extends BaseTest {
     @Test
     public void getCreateExperimentTest() throws Exception {
         String expName = createExperimentName();
-        CreateExperimentResponse expCreate = client.createExperiment(expName);
-        GetExperimentResponse exp = client.getExperiment(expCreate.getExperimentId());
+        String expId = client.createExperiment(expName);
+        GetExperimentResponse exp = client.getExperiment(expId);
         Assert.assertEquals(exp.getExperiment().getName(),expName);
     }
 
     @Test (expectedExceptions = HttpServerException.class) // TODO: server should throw 406
     public void createExistingExperiment() throws Exception {
         String expName = createExperimentName();
-        CreateExperimentResponse expCreate = client.createExperiment(expName);
-        GetExperimentResponse exp = client.getExperiment(expCreate.getExperimentId());
-        Assert.assertEquals(exp.getExperiment().getName(),expName);
-
+        client.createExperiment(expName);
         client.createExperiment(expName);
     }
 
@@ -34,7 +31,7 @@ public class ApiClientTest extends BaseTest {
         List<Experiment> expsBefore = client.listExperiments();
 
         String expName = createExperimentName();
-        CreateExperimentResponse expCreate = client.createExperiment(expName);
+        String expId = client.createExperiment(expName);
 
         List<Experiment> exps = client.listExperiments();
         Assert.assertEquals(exps.size(),1+expsBefore.size());
@@ -44,26 +41,25 @@ public class ApiClientTest extends BaseTest {
         Experiment expList = opt.get();
         Assert.assertEquals(expList.getName(),expName);
 
-        Experiment expGet = client.getExperiment(expCreate.getExperimentId()).getExperiment();
-        //Assert.assertEquals(expGet,expList); TODO: fails even though all fields are the same
+        Experiment exp = client.getExperiment(expId).getExperiment();
+        //Assert.assertEquals(exp,expList); TODO: fails even though all fields are the same
 
-        Assert.assertEquals(expGet.getName(),expList.getName());
-        Assert.assertEquals(expGet.getExperimentId(),expList.getExperimentId());
-        Assert.assertEquals(expGet.getArtifactLocation(),expList.getArtifactLocation());
+        Assert.assertEquals(exp.getName(),expList.getName());
+        Assert.assertEquals(exp.getExperimentId(),expList.getExperimentId());
+        Assert.assertEquals(exp.getArtifactLocation(),expList.getArtifactLocation());
     }
 
     @Test
     public void addGetRun() throws Exception {
         // Create exp 
         String expName = createExperimentName();
-        CreateExperimentResponse expCreate = client.createExperiment(expName);
-        String experimentId = expCreate.getExperimentId();
+        String expId = client.createExperiment(expName);
     
         // Create run 
         String user = System.getenv("USER");
         long startTime = System.currentTimeMillis();
         String sourceFile = "MyFile.java";
-        CreateRunRequest request = new CreateRunRequest(experimentId, "run_for_"+experimentId, "LOCAL", sourceFile, startTime, user);     
+        CreateRunRequest request = new CreateRunRequest(expId, "run_for_"+expId, "LOCAL", sourceFile, startTime, user);     
         RunInfo runCreated = client.createRun(request);
         runId = runCreated.getRunUuid();
         logger.debug("runId="+runId);
@@ -82,16 +78,16 @@ public class ApiClientTest extends BaseTest {
         client.updateRun(update);
   
         // Assert run from getExperiment
-        GetExperimentResponse expResponse = client.getExperiment(expCreate.getExperimentId());
+        GetExperimentResponse expResponse = client.getExperiment(expId);
         Experiment exp = expResponse.getExperiment() ;
         Assert.assertEquals(exp.getName(),expName);
-        assertRunInfo(expResponse.getRuns().get(0), experimentId, user, sourceFile);
+        assertRunInfo(expResponse.getRuns().get(0), expId, user, sourceFile);
         
         // Assert run from getRun
         Run run = client.getRun(runId);
     
         RunInfo runInfo = run.getInfo();
-        assertRunInfo(runInfo, experimentId, user, sourceFile);
+        assertRunInfo(runInfo, expId, user, sourceFile);
     }
 
     @Test (dependsOnMethods={"addGetRun"})

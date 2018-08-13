@@ -13,8 +13,8 @@ class ApiClientTest extends BaseTest {
   @Test
   def getCreateExperimentTest() {
     val expName = createExperimentName()
-    val expCreate = client.createExperiment(expName)
-    val exp = client.getExperiment(expCreate.getExperimentId())
+    val expId = client.createExperiment(expName)
+    val exp = client.getExperiment(expId)
     assertEquals(exp.getExperiment().getName(),expName)
   }
 
@@ -23,16 +23,16 @@ class ApiClientTest extends BaseTest {
     val expsBefore = client.listExperiments()
 
     val expName = createExperimentName()
-    val expCreate = client.createExperiment(expName)
+    val expId = client.createExperiment(expName)
 
     val exps = client.listExperiments()
-    assertEquals(exps.size(),1+expsBefore.size());
+    assertEquals(exps.size(), 1+expsBefore.size());
 
     val opt = getExperimentByName(exps,expName)
     assertFalse(opt == None)
     val expList = opt.get
 
-    val expGet = client.getExperiment(expCreate.getExperimentId()).getExperiment();
+    val expGet = client.getExperiment(expId).getExperiment();
     equals(expGet,expList)
   }
 
@@ -40,14 +40,13 @@ class ApiClientTest extends BaseTest {
   def addGetRun() {
     // Create exp 
     val expName = createExperimentName()
-    val expCreate = client.createExperiment(expName)
-    val experimentId = expCreate.getExperimentId()
+    val expId = client.createExperiment(expName)
 
     // Create run 
     val user = System.getenv("USER");
     val startTime = System.currentTimeMillis();
     val sourceFile = "MyFile.java";
-    val request = new CreateRunRequest(experimentId, "run_for_"+experimentId, "LOCAL", sourceFile, startTime, user);     
+    val request = new CreateRunRequest(expId, "run_for_"+expId, "LOCAL", sourceFile, startTime, user);     
     val runCreated = client.createRun(request);
     //val runId = runCreated.getRunUuid();
     runId = runCreated.getRunUuid();
@@ -70,9 +69,9 @@ class ApiClientTest extends BaseTest {
     run = client.getRun(runId)
 
     val runInfo = run.getInfo()
-    assertEquals(runInfo.getExperimentId(),experimentId)
+    assertEquals(runInfo.getExperimentId(),expId)
     assertEquals(runInfo.getUserId(),user)
-    assertEquals(runInfo.getExperimentId(),experimentId)
+    assertEquals(runInfo.getExperimentId(),expId)
     assertEquals(runInfo.getSourceName(),sourceFile)
   }
 
