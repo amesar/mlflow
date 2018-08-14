@@ -1,6 +1,7 @@
 # MLflow Java Client
 
-First pass for a Java client for [MLflow](https://mlflow.org) REST API.
+Java client for [MLflow](https://mlflow.org) REST API based on 
+[Jackson](https://github.com/FasterXML/jackson) JSON serialization.
 See also the MLflow [Python API](https://mlflow.org/docs/latest/python_api/index.html)
 and [REST API](https://mlflow.org/docs/latest/rest_api.html).
 
@@ -8,32 +9,46 @@ and [REST API](https://mlflow.org/docs/latest/rest_api.html).
 
 * Java 1.8
 * Maven
-* [MLflow Tracking Server](https://mlflow.org/docs/latest/tracking.html#running-a-tracking-server) - you will need to launch a server
+* [MLflow Tracking Server 0.4.2](https://mlflow.org/docs/latest/tracking.html#running-a-tracking-server) - you will need to run the server
 
-## Build and Run
+## Build
+
+### Build without tests
 ```
 mvn -DskipTests=true package
-java -cp target/mlflow-java-1.0-SNAPSHOT.jar com.databricks.mlflow.client.samples.QuickStartDriver http://localhost:5000
 ```
 
-### Scala Client Usage
-You can also invoke the MLflow Java client from Scala.
-See the preliminary [ScalaDriver.scala](src/main/scala/com/databricks/mlflow/client/samples/ScalaDriver.scala) and
-[ApiClientTest.scala](src/test/scala/com/databricks/mlflow/client/scala/ApiClientTest.scala).
-```
-java -cp target/mlflow-java-1.0-SNAPSHOT.jar com.databricks.mlflow.client.samples.ScalaDriver http://localhost:5000
-```
-
-### Tests
+### Build with tests and Docker
 
 MLflow [tests](src/test/java/com/databricks/mlflow/client) expect a MLflow tracking server to be running on port 5001.
-If you don't wish to run tests, build with ``skipTests`` property as above.
-Otherwise, run an MLflow tracking server on port 5001 and build with ``mvn package``.
 
-If you wish to run the tests, you can run the Docker container that launches an MLflow tracking server.
+First build and launch the Docker container.
+```
+docker build -t mlflow-test:latest
+docker run -t -d --name mlflow-test -p 5001:5000  mlflow-test:latest
+```
 
-* Build image: ``docker build -t mlflow-test:latest``
-* Run container: ``docker run -t -d --name mlflow-test -p 5001:5000  mlflow-test:latest``
+The build the jar file.
+```
+mvn package
+```
+
+TODO: Add docker target to Maven.
+
+## Run
+
+To run a simple sample.
+```
+java -cp target/mlflow-java-client-0.4.2.jar \
+  com.databricks.mlflow.client.samples.QuickStartDriver http://localhost:5001
+```
+
+## MLflow Versions
+This version of the MLflow Java client is built against the 0.4.2 version of the Python server.
+If you want to test against new server versons you should change the following:
+ * Change the ``<mlflow-version>`` property in [pom.xml](pom.xml).
+ * Change ``mlflow==0.4.2`` line in the [Dockerfile](Dockerfile) and rebuild your docker image.
+
 
 ## Java Client API
 
@@ -75,6 +90,8 @@ public SearchResponse search(int [] experimentIds, BaseSearch[] clauses)
 ```
 
 ## Usage
+
+### Java Usage
 
 See [ApiClientTest.java](src/test/java/com/databricks/mlflow/client/ApiClientTest.java) and
  [QuickStartDriver.java](src/main/java/com/databricks/mlflow/client/samples/QuickStartDriver.java) for usage.
@@ -161,4 +178,12 @@ public class QuickStartDriver {
     }
 }
 
+```
+### Scala Usage
+You can also invoke the MLflow Java client from Scala.
+See the short [ScalaDriver.scala](src/main/scala/com/databricks/mlflow/client/samples/ScalaDriver.scala) and
+[ApiClientTest.scala](src/test/scala/com/databricks/mlflow/client/scala/ApiClientTest.scala).
+```
+java -cp target/mlflow-java-client-0.4.2.jar \
+  com.databricks.mlflow.client.samples.ScalaDriver http://localhost:5001
 ```
