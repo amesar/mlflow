@@ -2,12 +2,16 @@ package com.databricks.mlflow.client;
 
 import java.util.*;
 import org.apache.http.client.utils.URIBuilder;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.databricks.mlflow.client.objects.*;
+import com.databricks.api.proto.mlflow.Service.*;
+import com.databricks.mlflow.client.objects.BaseSearch;
+import com.databricks.mlflow.client.objects.ObjectUtils;
+import com.databricks.mlflow.client.objects.FromProtobufMapper;
+import com.databricks.mlflow.client.objects.ToProtobufMapper;
 
 public class ApiClient {
     private String basePath = "api/2.0/preview/mlflow";
-    private ObjectMapper mapper = new ObjectMapper();
+    private ToProtobufMapper toMapper = new ToProtobufMapper();
+    private FromProtobufMapper fromMapper = new FromProtobufMapper();
     private HttpCaller httpCaller ;
 
     public ApiClient(String baseApiUri) throws Exception {
@@ -24,66 +28,62 @@ public class ApiClient {
         httpCaller.setVerbose(verbose);
     }
 
-    public String createExperiment(String experimentName) throws Exception {
-        String ijson = mapper.writeValueAsString(new CreateExperimentRequest(experimentName));
-        String ojson = post("experiments/create",ijson);
-        return mapper.readValue(ojson, CreateExperimentResponse.class).getExperimentId();
+    public GetExperiment.Response getExperiment(long experimentId) throws Exception {
+        URIBuilder builder = httpCaller.makeURIBuilder("experiments/get").setParameter("experiment_id",""+experimentId);
+        return toMapper.toGetExperimentResponse(httpCaller._get(builder));
     }
 
     public List<Experiment> listExperiments() throws Exception {
-        return mapper.readValue(get("experiments/list"), ListExperimentsResponse.class).getExperiments();
+        return toMapper.toListExperimentsResponse(httpCaller.get("experiments/list")).getExperimentsList();
     }
 
-    public GetExperimentResponse getExperiment(String experimentId) throws Exception {
-        URIBuilder builder = httpCaller.makeURIBuilder("experiments/get").setParameter("experiment_id",experimentId);
-        return mapper.readValue(httpCaller._get(builder), GetExperimentResponse.class);
-    }
-
-    public RunInfo createRun(CreateRunRequest request) throws Exception {
-        String ijson = mapper.writeValueAsString(request);
-        String ojson = post("runs/create",ijson);
-        return mapper.readValue(ojson, CreateRunResponseWrapper.class).getRun().getInfo();
-    }
-
-    public void updateRun(String runUuid, String status, long endTime) throws Exception {
-        post("runs/update",mapper.writeValueAsString(new UpdateRunRequest(runUuid, status, endTime)));
+    public long createExperiment(String experimentName) throws Exception {
+        String ijson = fromMapper.makeCreateExperimentRequest(experimentName);
+        String ojson = post("experiments/create",ijson);
+        return toMapper.toCreateExperimentResponse(ojson).getExperimentId();
     }
 
     public Run getRun(String runUuid) throws Exception {
         URIBuilder builder = httpCaller.makeURIBuilder("runs/get").setParameter("run_uuid",runUuid);
-        return mapper.readValue(httpCaller._get(builder), GetRunResponse.class).getRun();
+        return toMapper.toGetRunResponse(httpCaller._get(builder)).getRun();
+    }
+
+    public RunInfo createRun(CreateRun request) throws Exception {
+        String ijson = fromMapper.toJson(request);
+        String ojson = post("runs/create",ijson);
+        return toMapper.toCreateRunResponse(ojson).getRun().getInfo();
+    }
+
+    public void updateRun(String runUuid, RunStatus status, long endTime) throws Exception {
+        post("runs/update", fromMapper.makeUpdateRun(runUuid, status, endTime));
     }
 
     public void logParameter(String runUuid, String key, String value) throws Exception {
-        LogParam request = new LogParam(runUuid, key,value);
-        post("runs/log-parameter",mapper.writeValueAsString(request));
+        post("runs/log-parameter",fromMapper.makeLogParam(runUuid, key, value));
     }
-
-    public void logMetric(String runUuid, String key, double value) throws Exception {
-        LogMetric request = new LogMetric(runUuid, key, value, ""+System.currentTimeMillis());
-        String ijson = mapper.writeValueAsString(request);
-        post("runs/log-metric",ijson);
+    public void logMetric(String runUuid, String key, float value) throws Exception {
+        post("runs/log-metric", fromMapper.makeLogMetric(runUuid, key, value));
     }
 
     public Metric getMetric(String runUuid, String metricKey) throws Exception {
         URIBuilder builder = httpCaller.makeURIBuilder("metrics/get")
             .setParameter("run_uuid",runUuid)
             .setParameter("metric_key",metricKey);
-        return mapper.readValue(httpCaller._get(builder), GetMetricResponse.class).getMetric();
+        return toMapper.toGetMetricResponse(httpCaller._get(builder)).getMetric();
     }
 
     public List<Metric> getMetricHistory(String runUuid, String metricKey) throws Exception {
         URIBuilder builder = httpCaller.makeURIBuilder("metrics/get-history")
             .setParameter("run_uuid",runUuid)
             .setParameter("metric_key",metricKey);
-        return mapper.readValue(httpCaller._get(builder), GetMetricHistoryResponse.class).getMetrics();
+        return toMapper.toGetMetricHistoryResponse(httpCaller._get(builder)).getMetricsList();
     }
 
-    public ListArtifactsResponse listArtifacts(String runUuid, String path) throws Exception {
+    public ListArtifacts.Response listArtifacts(String runUuid, String path) throws Exception {
         URIBuilder builder = httpCaller.makeURIBuilder("artifacts/list")
             .setParameter("run_uuid",runUuid)
             .setParameter("path",path);
-        return mapper.readValue(httpCaller._get(builder), ListArtifactsResponse.class);
+        return toMapper.toListArtifactsResponse(httpCaller._get(builder));
     }
 
     public byte [] getArtifact(String runUuid, String path) throws Exception {
@@ -93,21 +93,18 @@ public class ApiClient {
         return httpCaller._getAsBytes(builder.toString());
     }
 
-    /** Convenience method for easier parameter search. */
-    public SearchResponse search(int [] experimentIds, BaseSearch[] clauses) throws Exception {
-        return search(ObjectUtils.makeSearchRequest(experimentIds, clauses));
-    }
-
-    public SearchResponse search(SearchRequest search) throws Exception {
-        String ojson = post("runs/search",mapper.writeValueAsString(search));
-        return mapper.readValue(ojson, SearchResponse.class);
+    public SearchRuns.Response search(long [] experimentIds, BaseSearch[] clauses) throws Exception {
+        SearchRuns search =  ObjectUtils.makeSearchRequest(experimentIds, clauses);
+        String ijson = fromMapper.toJson(search);
+        String ojson = post("runs/search",ijson);
+        return toMapper.toSearchRunsResponse(ojson);
     }
 
     public Optional<Experiment> getExperimentByName(String experimentName) throws Exception {
         return listExperiments().stream().filter(e -> e.getName().equals(experimentName)).findFirst();
     }
 
-    public String getOrCreateExperimentId(String experimentName) throws Exception {
+    public long getOrCreateExperimentId(String experimentName) throws Exception {
         Optional<Experiment> opt = getExperimentByName(experimentName);
         return opt.isPresent() ? opt.get().getExperimentId() : createExperiment(experimentName);
     }
@@ -116,7 +113,7 @@ public class ApiClient {
         return httpCaller.get(path);
     }
 
-    public String post(String path, String ijson) throws Exception {
-        return httpCaller.post(path,ijson);
+    public String post(String path, String json) throws Exception {
+        return httpCaller.post(path,json);
     }
 }

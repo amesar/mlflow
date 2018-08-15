@@ -4,18 +4,20 @@ import java.util.*;
 import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.*;
-import com.databricks.mlflow.client.objects.*;
 import static com.databricks.mlflow.client.TestUtils.*;
+import com.databricks.api.proto.mlflow.Service.*;
+import com.databricks.mlflow.client.objects.*;
 
 public class ApiClientTest extends BaseTest {
     private static final Logger logger = Logger.getLogger(ApiClientTest.class);
+    long expIdPythonScikitLearnTest = 0 ;
     String runId ;
 
     @Test
     public void getCreateExperimentTest() throws Exception {
         String expName = createExperimentName();
-        String expId = client.createExperiment(expName);
-        GetExperimentResponse exp = client.getExperiment(expId);
+        long expId = client.createExperiment(expName);
+        GetExperiment.Response exp = client.getExperiment(expId);
         Assert.assertEquals(exp.getExperiment().getName(),expName);
     }
 
@@ -31,7 +33,7 @@ public class ApiClientTest extends BaseTest {
         List<Experiment> expsBefore = client.listExperiments();
 
         String expName = createExperimentName();
-        String expId = client.createExperiment(expName);
+        long expId = client.createExperiment(expName);
 
         List<Experiment> exps = client.listExperiments();
         Assert.assertEquals(exps.size(),1+expsBefore.size());
@@ -41,29 +43,27 @@ public class ApiClientTest extends BaseTest {
         Experiment expList = opt.get();
         Assert.assertEquals(expList.getName(),expName);
 
-        Experiment exp = client.getExperiment(expId).getExperiment();
-        //Assert.assertEquals(exp,expList); TODO: fails even though all fields are the same
-
-        Assert.assertEquals(exp.getName(),expList.getName());
-        Assert.assertEquals(exp.getExperimentId(),expList.getExperimentId());
-        Assert.assertEquals(exp.getArtifactLocation(),expList.getArtifactLocation());
+        GetExperiment.Response expGet = client.getExperiment(expId);
+        Assert.assertEquals(expGet.getExperiment(),expList);
     }
 
     @Test
     public void addGetRun() throws Exception {
         // Create exp 
         String expName = createExperimentName();
-        String expId = client.createExperiment(expName);
+        long expId = client.createExperiment(expName);
+        logger.debug(">> TEST.0");
     
         // Create run 
         String user = System.getenv("USER");
         long startTime = System.currentTimeMillis();
         String sourceFile = "MyFile.java";
-        CreateRunRequest request = new CreateRunRequest(expId, "run_for_"+expId, "LOCAL", sourceFile, startTime, user);     
+        CreateRun request = ObjectUtils.makeCreateRun(expId, "run_for_"+expId, SourceType.LOCAL, sourceFile, startTime, user);   
+
         RunInfo runCreated = client.createRun(request);
         runId = runCreated.getRunUuid();
         logger.debug("runId="+runId);
-    
+
         // Log parameters
         client.logParameter(runId, "min_samples_leaf", TestShared.min_samples_leaf);
         client.logParameter(runId, "max_depth", TestShared.max_depth);
@@ -72,19 +72,18 @@ public class ApiClientTest extends BaseTest {
         client.logMetric(runId, "auc", TestShared.auc);
         client.logMetric(runId, "accuracy_score", TestShared.accuracy_score);
         client.logMetric(runId, "zero_one_loss", TestShared.zero_one_loss);
-    
+
         // Update finished run
-        client.updateRun(runId, "FINISHED", startTime+1001);
+        client.updateRun(runId, RunStatus.FINISHED, startTime+1001);
   
         // Assert run from getExperiment
-        GetExperimentResponse expResponse = client.getExperiment(expId);
+        GetExperiment.Response expResponse = client.getExperiment(expId);
         Experiment exp = expResponse.getExperiment() ;
         Assert.assertEquals(exp.getName(),expName);
-        assertRunInfo(expResponse.getRuns().get(0), expId, user, sourceFile);
+        assertRunInfo(expResponse.getRunsList().get(0), expId, user, sourceFile);
         
         // Assert run from getRun
         Run run = client.getRun(runId);
-    
         RunInfo runInfo = run.getInfo();
         assertRunInfo(runInfo, expId, user, sourceFile);
     }
@@ -103,14 +102,15 @@ public class ApiClientTest extends BaseTest {
             { "!=", "max_depth", "3" , 0}
 		};
     }
+
 	@Test(dependsOnMethods={"addGetRun"}, dataProvider = "searchParameterRequests")
 	public void testSearchParameters(String comparator, String key, String value, int numResults) throws Exception {
         String expectedValue = "3";
-        SearchResponse rsp = client.search(new int[] {0}, new ParameterSearch[] { new ParameterSearch(key,comparator,value) });
-        Assert.assertEquals(rsp.getRuns().size(),numResults);
+        SearchRuns.Response rsp = client.search(new long[] {expIdPythonScikitLearnTest}, new ParameterSearch[] { new ParameterSearch(key,comparator,value) });
+        List<Run> runs = rsp.getRunsList();
+        Assert.assertEquals(runs.size(),numResults);
         if (numResults > 0) {
-            RunData runData = rsp.getRuns().get(0).getData();
-            assertParam(runData.getParams(),key,expectedValue);
+            assertParam(runs.get(0).getData().getParamsList(),key,expectedValue);
         }
     }
 
@@ -134,19 +134,18 @@ public class ApiClientTest extends BaseTest {
 		};
     }
     @Test(dependsOnMethods={"addGetRun"}, dataProvider = "searchMetricRequests")
-    public void checkSearchMetrics(String comparator, String key, double value, int numResults) throws Exception {
-        double expectedValue = 2;
-        SearchResponse rsp = client.search(new int[] {0}, new MetricSearch[] { new MetricSearch(key,comparator,value) });
-        Assert.assertEquals(rsp.getRuns().size(),numResults);
+    public void checkSearchMetrics(String comparator, String key, float value, int numResults) throws Exception {
+        float expectedValue = 2F;
+        SearchRuns.Response rsp = client.search(new long[] {expIdPythonScikitLearnTest}, new MetricSearch[] { new MetricSearch(key,comparator,value) });
+        List<Run> runs = rsp.getRunsList();
+        Assert.assertEquals(runs.size(),numResults);
         if (numResults > 0) {
-            RunData runData = rsp.getRuns().get(0).getData();
-            assertMetric(runData.getMetrics(),key,expectedValue);
+            assertMetric(runs.get(0).getData().getMetricsList(),key,expectedValue);
         }
     }
-
-	@DataProvider
-	public Object[][] searchMixedRequests() {
-		return new Object[][]{
+    @DataProvider
+    public Object[][] searchMixedRequests() {
+        return new Object[][]{
             { "=",  "max_depth", "3" , "=",  "auc", 2 , 1},
             { "=",  "max_depth", "3" , "=",  "auc", 9 , 0},
             { "=",  "max_depth", "9" , "=",  "auc", 2 , 0},
@@ -156,21 +155,20 @@ public class ApiClientTest extends BaseTest {
             { "=",  "max_depth", "3" , "<=", "auc", 2 , 1},
             { "=",  "max_depth", "3" , ">",  "auc", 2 , 0},
             { "=",  "max_depth", "3" , "<",  "auc", 2 , 0},
-		};
+        };
     }
     @Test(dependsOnMethods={"addGetRun"}, dataProvider = "searchMixedRequests")
-    public void checkSearchMixed(String comparator1, String key1, String value1, String comparator2, String key2, double value2, int numResults) throws Exception {
+    public void checkSearchMixed(String comparator1, String key1, String value1, String comparator2, String key2, float value2, int numResults) throws Exception {
         String expectedValue1 = "3";
-        double expectedValue2 = 2;
-        SearchResponse rsp = client.search(new int[] {0}, new BaseSearch[] { 
+        float expectedValue2 = 2F;
+        SearchRuns.Response rsp = client.search(new long[] {expIdPythonScikitLearnTest}, new BaseSearch[] {
             new ParameterSearch(key1,comparator1,value1),
             new MetricSearch(key2,comparator2,value2) });
-        Assert.assertEquals(rsp.getRuns().size(),numResults);
+        List<Run> runs = rsp.getRunsList();
+        Assert.assertEquals(runs.size(),numResults);
         if (numResults > 0) {
-            RunData runData = rsp.getRuns().get(0).getData();
-            assertParam(runData.getParams(),key1,expectedValue1);
-            assertMetric(runData.getMetrics(),key2,expectedValue2);
+            assertParam(runs.get(0).getData().getParamsList(),key1,expectedValue1);
+            assertMetric(runs.get(0).getData().getMetricsList(),key2,expectedValue2);
         }
     }
-
 }

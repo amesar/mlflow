@@ -2,7 +2,8 @@ package com.databricks.mlflow.client.samples;
 
 import java.util.*;
 import com.databricks.mlflow.client.ApiClient;
-import com.databricks.mlflow.client.objects.*;
+import com.databricks.api.proto.mlflow.Service.*;
+import com.databricks.mlflow.client.objects.ObjectUtils;
 
 public class QuickStartDriver {
     public static void main(String [] args) throws Exception {
@@ -20,11 +21,11 @@ public class QuickStartDriver {
 
         System.out.println("====== createExperiment");
         String expName = "Exp_"+System.currentTimeMillis();
-        String expId = client.createExperiment(expName);
+        long expId = client.createExperiment(expName);
         System.out.println("createExperiment: expId="+expId);
 
         System.out.println("====== getExperiment");
-        GetExperimentResponse exp = client.getExperiment(expId);
+        GetExperiment.Response exp = client.getExperiment(expId);
         System.out.println("getExperiment: "+exp);
 
         System.out.println("====== listExperiments");
@@ -34,22 +35,24 @@ public class QuickStartDriver {
 
         createRun(client, expId);
 
-        System.out.println("====== getExperiment");
-        GetExperimentResponse exp2 = client.getExperiment(expId);
+        System.out.println("====== getExperiment again");
+        GetExperiment.Response exp2 = client.getExperiment(expId);
         System.out.println("getExperiment: "+exp2);
 
-        Optional<Experiment> ee = client.getExperimentByName(expName);
-        System.out.println("getExperimentByName: "+ee);
+        System.out.println("====== getExperiment by name");
+        Optional<Experiment> exp3 = client.getExperimentByName(expName);
+        System.out.println("getExperimentByName: "+exp3);
     }
 
-    void createRun(ApiClient client, String experimentId) throws Exception {
+    void createRun(ApiClient client, long expId) throws Exception {
         System.out.println("====== createRun");
 
         // Create run
         String user = System.getenv("USER");
         long startTime = System.currentTimeMillis();
         String sourceFile = "MyFile.java";
-        CreateRunRequest request = new CreateRunRequest(experimentId, "run_for_"+experimentId, "LOCAL", sourceFile, startTime, user);
+
+        CreateRun request = ObjectUtils.makeCreateRun(expId, "run_for_"+expId, SourceType.LOCAL, sourceFile, startTime, user);
         RunInfo runCreated = client.createRun(request);
         System.out.println("CreateRun: "+runCreated);
         String runId = runCreated.getRunUuid();
@@ -59,12 +62,12 @@ public class QuickStartDriver {
         client.logParameter(runId, "max_depth", "3");
 
         // Log metrics
-        client.logMetric(runId, "auc", 2.12);
-        client.logMetric(runId, "accuracy_score", 3.12);
-        client.logMetric(runId, "zero_one_loss", 4.12);
+        client.logMetric(runId, "auc", 2.12F);
+        client.logMetric(runId, "accuracy_score", 3.12F);
+        client.logMetric(runId, "zero_one_loss", 4.12F);
 
         // Update finished run
-        client.updateRun(runId, "FINISHED", startTime+1001);
+        client.updateRun(runId, RunStatus.FINISHED, startTime+1001);
     
         // Get run details
         Run run = client.getRun(runId);

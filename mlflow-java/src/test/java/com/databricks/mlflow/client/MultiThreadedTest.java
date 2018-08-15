@@ -3,12 +3,13 @@ package com.databricks.mlflow.client;
 import java.util.*;
 import org.testng.Assert;
 import org.testng.annotations.*;
-import com.databricks.mlflow.client.objects.*;
+import com.databricks.api.proto.mlflow.Service.*;
+import com.databricks.mlflow.client.objects.ObjectUtils;
 import static com.databricks.mlflow.client.TestUtils.*;
 
 public class MultiThreadedTest extends BaseTest {
     List<String> runIds = Collections.synchronizedList(new ArrayList<String>());
-    String expId ;
+    long expId ;
     String expName ;
     Random random = new Random();
     static final int invocationCount = 10;
@@ -25,51 +26,51 @@ public class MultiThreadedTest extends BaseTest {
         String user = "foo";
         String sourceFile = "MyFile.java";
 
-        CreateRunRequest request = new CreateRunRequest(expId, "run_for_"+expId, "LOCAL", sourceFile, startTime, user);   
-        RunInfo runCreated = client.createRun(request);
-        String runId = runCreated.getRunUuid();
+        CreateRun request = ObjectUtils.makeCreateRun(expId, "run_for_"+expId, SourceType.LOCAL, sourceFile, startTime, user);   
+        RunInfo runInfo = client.createRun(request);
+        String runId = runInfo.getRunUuid();
         runIds.add(runId);
 
-        double dval = random.nextDouble() * 100;
+        float fval = random.nextFloat() * 100;
         int n = random.nextInt(10);
         for (int j=0 ; j < n ; j++) {
-          client.logParameter(runId, "p"+j, ""+(dval+1));
+          client.logParameter(runId, "p"+j, ""+(fval+1));
         }
         for (int j=0 ; j < n+1 ; j++) {
-          client.logMetric(runId, "m"+j, dval+1);
+          client.logMetric(runId, "m"+j, fval+1);
         }
 
         // Update finished run
-        client.updateRun(runId, "FINISHED", startTime+1001);
+        client.updateRun(runId, RunStatus.FINISHED, startTime+1001);
  
         // Assert run from getExperiment
-        GetExperimentResponse expResponse = client.getExperiment(expId);
+        GetExperiment.Response expResponse = client.getExperiment(expId);
         Experiment exp = expResponse.getExperiment() ;
         Assert.assertEquals(exp.getName(),expName);
-        assertRunInfo(expResponse.getRuns().get(0), expId, user, sourceFile);
+        assertRunInfo(expResponse.getRunsList().get(0), expId, user, sourceFile);
 
         // Assert run from getRun
         Run run = client.getRun(runId);
-        RunInfo runInfo = run.getInfo();
+        runInfo = run.getInfo();
         assertRunInfo(runInfo, expId, user, sourceFile);
 
         // Assert run params
-        List<Param> params = run.getData().getParams();
+        List<Param> params = run.getData().getParamsList();
         Assert.assertEquals(params.size(),n);
         for (int j=0 ; j < n ; j++) {
-            assertParam(params,"p"+j,""+(dval+1));
+            assertParam(params,"p"+j,""+(fval+1));
         }
 
         // Assert run metrics
-        List<Metric> metrics = run.getData().getMetrics();
+        List<Metric> metrics = run.getData().getMetricsList();
         Assert.assertEquals(metrics.size(),n+1);
         for (int j=0 ; j < n+1 ; j++) {
-            assertMetric(metrics,"m"+j,dval+1);
+            assertMetric(metrics,"m"+j,fval+1);
         }
     }
 
     @Test (dependsOnMethods={"testRunsInParallel"})
-    public void checkem() {
+    public void checkNumberOfRunIds() {
         Assert.assertEquals(runIds.size(),invocationCount);
     }
 }

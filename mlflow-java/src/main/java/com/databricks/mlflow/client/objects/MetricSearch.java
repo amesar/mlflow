@@ -2,13 +2,13 @@ package com.databricks.mlflow.client.objects;
 
 /** Convenience class for easier API search. */
 public class MetricSearch extends BaseSearch {
-    private Double value;
+    private Float value;
 
-    public MetricSearch(String key, String comparator, Double value) {
+    public MetricSearch(String key, String comparator, Float value) {
         super(key, comparator);
         this.value = value;
     }
-    public Double getValue() { return value; }
+    public Float getValue() { return value; }
 
     @Override
     public String toString() {
