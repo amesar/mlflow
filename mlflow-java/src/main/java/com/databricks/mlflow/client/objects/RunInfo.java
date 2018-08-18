@@ -28,6 +28,11 @@ public class RunInfo {
     private String sourceName; 
     public String getSourceName() { return sourceName; }
     public void setSourceName(String sourceName) { this.sourceName = sourceName; }
+
+    @JsonProperty("source_version")
+    private String sourceVersion; 
+    public String getSourceVersion() { return sourceVersion; }
+    public void setSourceVersion(String sourceVersion) { this.sourceVersion = sourceVersion; }
  
     @JsonProperty("user_id")
     private String userId; 
@@ -62,6 +67,7 @@ public class RunInfo {
             + " name=" + name 
             + " sourceType=" + sourceType 
             + " sourceName=" + sourceName 
+            + " sourceVersion=" + sourceVersion 
             + " userId=" + userId 
             + " status=" + status 
             + " startTime=" + startTime 
