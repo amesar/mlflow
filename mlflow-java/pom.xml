@@ -102,6 +102,14 @@
               <goal>shade</goal>
             </goals>
             <configuration>
+
+              <relocations>
+                <relocation>
+                  <pattern>com.databricks.mlflow.client</pattern>
+                  <shadedPattern>com.databricks.mlflow.client2</shadedPattern>
+                </relocation>
+              </relocations>
+
               <filters>
                 <filter>
                   <artifact>*:*</artifact>
@@ -134,7 +142,7 @@
           <generateGitPropertiesFilename>src/main/resources/git.properties</generateGitPropertiesFilename>
           To be able to get uniquely from classpath
 -->
-          <generateGitPropertiesFilename>src/main/resources/com.databricks.mlflow.client.git.properties</generateGitPropertiesFilename>
+          <generateGitPropertiesFilename>src/main/resources/com.databricks.mlflow.client2.git.properties</generateGitPropertiesFilename>
         </configuration>
       </plugin>
 
