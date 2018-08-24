@@ -1,4 +1,4 @@
-package com.databricks.mlflow.client.store;
+package com.databricks.mlflow.client.repo;
 
 import java.io.IOException;
 import java.nio.file.Files;

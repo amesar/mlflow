@@ -1,4 +1,4 @@
-package com.databricks.mlflow.client.store;
+package com.databricks.mlflow.client.repo;
 
 import java.util.List;
 
