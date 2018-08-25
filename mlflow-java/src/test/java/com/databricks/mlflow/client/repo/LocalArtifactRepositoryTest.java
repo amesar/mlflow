@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.testng.Assert;
 import org.testng.annotations.*;
+import static com.databricks.mlflow.client.TestUtils.*;
 
 public class LocalArtifactRepositoryTest {
     private LocalArtifactRepository repo ;
@@ -63,21 +64,5 @@ public class LocalArtifactRepositoryTest {
         Assert.assertEquals(data0,odata0); 
         String odata1 = readFile(repo.makePath(artifactPath,localFile1));
         Assert.assertEquals(data1,odata1); 
-    }
-
-    private Path createTempDirectory(String prefix) throws Exception {
-        Path path = Files.createTempDirectory(prefix);
-        FileUtils.recursiveDeleteOnShutdownHook(path);
-        return path;
-    }
-
-    void writeFile(Path path, String data) throws IOException {
-        try (PrintWriter w = new PrintWriter(path.toString())) { 
-            w.write(data); 
-        };
-    }
-
-    String readFile(Path path) throws Exception {
-        return new Scanner(path).useDelimiter("\\A").next();
     }
 }

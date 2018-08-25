@@ -7,7 +7,7 @@ import static com.databricks.mlflow.client.TestUtils.*;
 
 public class RunContextTest extends BaseTest {
     @Test
-    public void addGetRun() throws Exception {
+    public void createGetRun() throws Exception {
         // Create exp 
         String expName = createExperimentName();
         String expId = client.createExperiment(expName);
