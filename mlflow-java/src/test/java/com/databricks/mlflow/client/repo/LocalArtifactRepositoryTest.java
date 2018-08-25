@@ -27,7 +27,9 @@ public class LocalArtifactRepositoryTest {
         String data = "Lorem ipsum dolor sit amet";
         writeFile(Paths.get(localFile),data);
         String artifactPath = "runs";
+
         repo.logArtifact(localFile,artifactPath);
+
         String odata = readFile(repo.makePath(artifactPath,localFile));
         Assert.assertEquals(odata,data); 
 

@@ -39,6 +39,12 @@ public class TestUtils {
         return "TestExp_" + UUID.randomUUID().toString();
     }
 
+    public static Path createTempFile() throws Exception {
+        Path path = Files.createTempFile("mlflow_",null);
+        path.toFile().deleteOnExit();
+        return path;
+    }
+
     public static Path createTempDirectory(String prefix) throws Exception {
         Path path = Files.createTempDirectory(prefix);
         FileUtils.recursiveDeleteOnShutdownHook(path);

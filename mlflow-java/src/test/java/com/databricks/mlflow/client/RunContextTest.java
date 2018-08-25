@@ -1,5 +1,6 @@
 package com.databricks.mlflow.client;
 
+import java.nio.file.Path;
 import org.testng.Assert;
 import org.testng.annotations.*;
 import com.databricks.mlflow.client.objects.*;
@@ -18,12 +19,18 @@ public class RunContextTest extends BaseTest {
         String sourceName = "MyFile.java";
         String runId ;
 
+        //Path localFile = createTempFile();
+        //String data = "Lorem ipsum dolor sit amet";
+        //writeFile(localFile,data);
+        //String artifactPath = "";
+
         try (RunContext ctx = new RunContext(client, expId, "run_for_"+expId, "LOCAL", sourceName, userId) ) {
             ctx.logParameter("min_samples_leaf", TestShared.min_samples_leaf);
             ctx.logParameter("max_depth", TestShared.max_depth);
             ctx.logMetric("auc", TestShared.auc);
             ctx.logMetric("accuracy_score", TestShared.accuracy_score);
             ctx.logMetric("zero_one_loss", TestShared.zero_one_loss);
+            //ctx.logArtifact(localFile.toString(), artifactPath); // XX
             runId = ctx.getRunId();
         }
 
@@ -37,5 +44,9 @@ public class RunContextTest extends BaseTest {
         Run run = client.getRun(runId);
         RunInfo runInfo = run.getInfo();
         assertRunInfo(runInfo, expId, userId, sourceName);
+
+        // Assert artifact
+        //byte [] data2 = client.getArtifact(runId, artifactPath) ;
+        //Assert.assertEquals(data,new String(data2));
     }
 }
