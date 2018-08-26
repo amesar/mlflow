@@ -167,15 +167,48 @@ data {
 }
 ```
 
-For more complete examples of API coverage see 
+For more complete examples of API coverage see:
 * Sample main program [Sampler.java](src/main/java/com/databricks/mlflow/client/samples/Sampler.java)
 * [tests](src/test/java/com/databricks/mlflow/client) such as [ApiClientTest.java](src/test/java/com/databricks/mlflow/client/ApiClientTest.java)
 
 ### Scala Usage
 You can also invoke the MLflow Java client from Scala.
-See the short [ScalaDriver.scala](src/main/scala/com/databricks/mlflow/client/samples/ScalaDriver.scala) and
-[ApiClientTest.scala](src/test/scala/com/databricks/mlflow/client/scala/ApiClientTest.scala).
 ```
 java -cp target/mlflow-java-client-0.4.2.jar \
-  com.databricks.mlflow.client.samples.ScalaDriver http://localhost:5001
+  com.databricks.mlflow.client.samples.ScalaQuickStart http://localhost:5001
 ```
+
+Simple example [ScalaQuickStart.scala](src/main/scala/com/databricks/mlflow/client/samples/ScalaQuickStart.scala)
+```
+package com.databricks.mlflow.client.samples
+
+import java.io.PrintWriter
+import com.databricks.mlflow.client.{ApiClient,RunContext}
+import com.databricks.api.proto.mlflow.Service.SourceType
+    
+object ScalaQuickStart {
+  def main(args: Array[String]) {
+    val client = new ApiClient(args(0))
+    
+    val expName = "" + System.currentTimeMillis
+    println("expName="+expName)
+    val expId = client.createExperiment(expName)
+    println("expId="+expId)
+    
+    var runId = ""
+    val sourceName = getClass().getSimpleName()+".scala".replace("\\$","")
+    new RunContext(client, expId, "MyScalaRun", SourceType.LOCAL, sourceName, System.getenv("USER")) {
+      runId = getRunId()
+      println("runId="+runId)
+      logParameter("min_samples_leaf", "2")
+      logMetric("auc", 2.12F)
+      new PrintWriter("info.txt") { write("Some metrics") }
+      logArtifact("info.txt","")
+    }
+    val run = client.getRun(runId)
+    println("Run:\n"+run)
+  }
+}
+```
+For more complete examples of API coverage see:
+* [ApiClientTest.scala](src/test/scala/com/databricks/mlflow/client/scala/ApiClientTest.scala)
