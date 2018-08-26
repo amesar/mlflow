@@ -5,14 +5,14 @@ import com.databricks.mlflow.client.ApiClient;
 import com.databricks.api.proto.mlflow.Service.*;
 import com.databricks.mlflow.client.objects.ObjectUtils;
 
-public class QuickStartDriver {
+public class Sampler {
     public static void main(String [] args) throws Exception {
-        (new QuickStartDriver()).process(args);
+        (new Sampler()).process(args);
     }
 
     void process(String [] args) throws Exception {
         if (args.length < 1) {
-            System.out.println("ERROR: Missing URI");
+            System.out.println("ERROR: Missing MLflow Tracking URI");
             System.exit(1);
         }
         boolean verbose = args.length < 2 ? false : Boolean.parseBoolean("true");
