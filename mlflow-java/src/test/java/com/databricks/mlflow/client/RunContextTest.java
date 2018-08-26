@@ -7,8 +7,19 @@ import com.databricks.mlflow.client.objects.*;
 import static com.databricks.mlflow.client.TestUtils.*;
 
 public class RunContextTest extends BaseTest {
+    private boolean testLogArtifact = false ; // TODO: If MLflow server's artifact path is local disk (as in test Docker) then this fails
+
     @Test
-    public void createGetRun() throws Exception {
+    public void createGetRun_EmptyArtifactPath() throws Exception {
+        _createGetRun("");
+    }
+
+    @Test
+    public void createGetRun_NonEmptyArtifactPath() throws Exception {
+        _createGetRun("a/b");
+    }
+
+    public void _createGetRun(String artifactPath) throws Exception {
         // Create exp 
         String expName = createExperimentName();
         String expId = client.createExperiment(expName);
@@ -19,10 +30,11 @@ public class RunContextTest extends BaseTest {
         String sourceName = "MyFile.java";
         String runId ;
 
-        //Path localFile = createTempFile();
-        //String data = "Lorem ipsum dolor sit amet";
-        //writeFile(localFile,data);
-        //String artifactPath = "";
+        String data = "Lorem ipsum dolor sit amet";
+        Path localFile = createTempFile();
+        if (testLogArtifact) {
+            writeFile(localFile,data);
+        }
 
         try (RunContext ctx = new RunContext(client, expId, "run_for_"+expId, "LOCAL", sourceName, userId) ) {
             ctx.logParameter("min_samples_leaf", TestShared.min_samples_leaf);
@@ -30,7 +42,9 @@ public class RunContextTest extends BaseTest {
             ctx.logMetric("auc", TestShared.auc);
             ctx.logMetric("accuracy_score", TestShared.accuracy_score);
             ctx.logMetric("zero_one_loss", TestShared.zero_one_loss);
-            //ctx.logArtifact(localFile.toString(), artifactPath); // XX
+            if (testLogArtifact) {
+                ctx.logArtifact(localFile.toString(), artifactPath);
+            }
             runId = ctx.getRunId();
         }
 
@@ -46,7 +60,9 @@ public class RunContextTest extends BaseTest {
         assertRunInfo(runInfo, expId, userId, sourceName);
 
         // Assert artifact
-        //byte [] data2 = client.getArtifact(runId, artifactPath) ;
-        //Assert.assertEquals(data,new String(data2));
+        if (testLogArtifact) {
+            byte [] data2 = client.getArtifact(runId, artifactPath) ;
+            Assert.assertEquals(data,new String(data2));
+        }
     }
 }
