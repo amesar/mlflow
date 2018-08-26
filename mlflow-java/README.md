@@ -96,11 +96,10 @@ public long getOrCreateExperimentId(String experimentName)
 Simple example [QuickStart.java](src/main/java/com/databricks/mlflow/client/samples/QuickStart.java)
 ```
 package com.databricks.mlflow.client.samples;
-
-import java.util.*;
+import java.io.PrintWriter;
 import com.databricks.mlflow.client.ApiClient;
+import com.databricks.mlflow.client.RunContext;
 import com.databricks.api.proto.mlflow.Service.*;
-import com.databricks.mlflow.client.objects.ObjectUtils;
 
 public class QuickStart {
     public static void main(String [] args) throws Exception {
@@ -119,23 +118,52 @@ public class QuickStart {
         System.out.println("expName="+expName);
         System.out.println("expId="+expId);
 
-        String user = System.getenv("USER");
-        long startTime = System.currentTimeMillis();
+        String runId;
         String sourceName = this.getClass().getSimpleName()+".java";
-
-        CreateRun request = ObjectUtils.makeCreateRun(expId, "run_for_"+expId, SourceType.LOCAL, sourceName, startTime, user);
-        RunInfo runInfo = client.createRun(request);
-        System.out.println("\nRunInfo:\n"+runInfo);
-        String runId = runInfo.getRunUuid();
-
-        client.logParameter(runId, "min_samples_leaf", "2");
-        client.logParameter(runId, "max_depth", "3");
-
-        client.logMetric(runId, "auc", 2.12F);
-        client.logMetric(runId, "accuracy_score", 3.12F);
-
-        client.updateRun(runId, RunStatus.FINISHED, startTime+1001);
+        try (RunContext run = new RunContext(client, expId, "MyRun", SourceType.LOCAL, sourceName, System.getenv("USER")) ) {
+            runId = run.getRunId();
+            System.out.println("runId="+runId);
+            run.logParameter("min_samples_leaf", "2");
+            run.logMetric("auc", 2.12F);
+            String localFile = "info.txt";
+            try (PrintWriter w = new PrintWriter(localFile)) {
+                w.write("Some information");
+            };
+            run.logArtifact(localFile,"");
+        }
+        Run run = client.getRun(runId);
+        System.out.println("Run:\n"+run);
     }
+}
+```
+Output:
+```
+expName=Exp_1535311465621
+expId=19
+runId=cbaaa3bff6454ff18589e35a46836033
+Run:
+info {
+  run_uuid: "cbaaa3bff6454ff18589e35a46836033"
+  experiment_id: 19
+  name: "Run 0"
+  source_type: LOCAL
+  source_name: "QuickStart.java"
+  user_id: "ander"
+  status: FINISHED
+  start_time: 1535311465916
+  end_time: 1535311466063
+  artifact_uri: "/home/mlflow/test/mlruns/19/cbaaa3bff6454ff18589e35a46836033/artifacts"
+}
+data {
+  metrics {
+    key: "auc"
+    value: 2.12
+    timestamp: 1535311866126
+  }
+  params {
+    key: "min_samples_leaf"
+    value: "2"
+  }
 }
 ```
 
