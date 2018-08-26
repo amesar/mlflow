@@ -39,7 +39,7 @@ public class RunContext implements AutoCloseable {
         if (repo == null) {
             throw new UnsupportedOperationException("Cannot logArtifact() because no repo");
         }
-        repo.logArtifact(localFile, makePath(artifactPath));
+        repo.logArtifact(localFile, artifactPath);
     }
 
     public void logModel(String key) throws Exception {
@@ -57,9 +57,5 @@ public class RunContext implements AutoCloseable {
 
     public RunInfo getRunInfo() {
         return runInfo;
-    }
-
-    private String makePath(String s) {
-        return experimentId + "/" + runId + "/" + s;
     }
 }
