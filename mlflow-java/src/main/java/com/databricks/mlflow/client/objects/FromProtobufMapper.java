@@ -20,11 +20,12 @@ public class FromProtobufMapper {
        return JsonFormat.printer().print(builder);
     }
 
-    public String makeLogMetric(String runUuid, String key, float value) throws Exception {
+    public String makeLogMetric(String runUuid, String key, float value, long timestamp) throws Exception {
        LogMetric.Builder builder = LogMetric.newBuilder();
        builder.setRunUuid(runUuid);
        builder.setKey(key);
        builder.setValue(value);
+       builder.setTimestamp(timestamp);
        return JsonFormat.printer().print(builder);
     }
 

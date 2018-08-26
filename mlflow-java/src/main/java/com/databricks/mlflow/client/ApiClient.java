@@ -62,7 +62,7 @@ public class ApiClient {
         post("runs/log-parameter",fromMapper.makeLogParam(runUuid, key, value));
     }
     public void logMetric(String runUuid, String key, float value) throws Exception {
-        post("runs/log-metric", fromMapper.makeLogMetric(runUuid, key, value));
+        post("runs/log-metric", fromMapper.makeLogMetric(runUuid, key, value, System.currentTimeMillis()));
     }
 
     public Metric getMetric(String runUuid, String metricKey) throws Exception {
