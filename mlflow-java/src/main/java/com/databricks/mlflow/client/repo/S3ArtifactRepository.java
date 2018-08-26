@@ -50,6 +50,7 @@ public class S3ArtifactRepository implements ArtifactRepository {
         return artifacts;
     }
 
+    // TODO: download contents
     public String downloadArtifacts(String artifactPath) throws Exception {
         return makePath(artifactPath);
     }
