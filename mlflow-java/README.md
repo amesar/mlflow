@@ -43,7 +43,7 @@ TODO: Add docker target to Maven.
 To run a simple sample.
 ```
 java -cp target/mlflow-java-client-jackson-0.4.2.jar \
-  com.databricks.mlflow.client.samples.QuickStartDriver http://localhost:5001
+  com.databricks.mlflow.client.samples.QuickStart http://localhost:5001
 ```
 
 ## MLflow Versions
@@ -95,81 +95,54 @@ public SearchResponse search(int [] experimentIds, BaseSearch[] clauses)
 
 ### Java Usage
 
-For a simple example see [QuickStartDriver.java](src/main/java/com/databricks/mlflow/client/samples/QuickStartDriver.java).
-For full examples of API coverage see the [tests](src/test/java/com/databricks/mlflow/client) such as [ApiClientTest.java](src/test/java/com/databricks/mlflow/client/ApiClientTest.java).
-
+Simple example [QuickStart.java](src/main/java/com/databricks/mlflow/client/samples/QuickStart.java)
 ```
 package com.databricks.mlflow.client.samples;
 
-import java.util.*;
+import java.io.PrintWriter;
 import com.databricks.mlflow.client.ApiClient;
+import com.databricks.mlflow.client.RunContext;
 import com.databricks.mlflow.client.objects.*;
 
-public class QuickStartDriver {
+public class QuickStart {
     public static void main(String [] args) throws Exception {
-        (new QuickStartDriver()).process(args);
+        (new QuickStart()).process(args);
     }
 
     void process(String [] args) throws Exception {
-        if (args.length < 2) {
-            System.out.println("ERROR: Missing HOST and PORT");
+        if (args.length < 1) {
+            System.out.println("ERROR: Missing MLflow Tracking URI");
             System.exit(1);
         }
-        String apiUri = args[0];
-        boolean verbose = args.length < 2 ? false : Boolean.parseBoolean("true");
-        ApiClient client = new ApiClient(apiUri, verbose);
+        ApiClient client = new ApiClient(args[0]);
 
-        System.out.println("====== createExperiment");
-        String  experimentId = client.createExperiment("Exp_"+System.currentTimeMillis());
-        System.out.println("createExperiment: "+expResponse);
+        String expName = "Exp_"+System.currentTimeMillis();
+        String expId = client.createExperiment(expName);
+         System.out.println("expName="+expName);
+        System.out.println("expId="+expId);
 
-        System.out.println("====== getExperiment");
-        GetExperimentResponse exp = client.getExperiment(experimentId);
-        System.out.println("getExperiment: "+exp);
-
-        System.out.println("====== listExperiments");
-        List<Experiment> exps = client.listExperiments();
-        System.out.println("#experiments: "+exps.size());
-        exps.forEach(e -> System.out.println("  Exp: "+e));
-
-        createRun(client, experimentId);
-
-        System.out.println("====== getExperiment");
-        GetExperimentResponse exp2 = client.getExperiment(experimentId);
-        System.out.println("getExperiment: "+exp2);
-    }
-
-    void createRun(ApiClient client, String experimentId) throws Exception {
-        System.out.println("====== createRun");
-
-        // Create run
-        String user = System.getenv("USER");
-        long startTime = System.currentTimeMillis();
-        String sourceFile = "MyFile.java";
-        CreateRunRequest request = new CreateRunRequest(experimentId, "run_for_"+experimentId, "LOCAL", sourceFile, startTime, user);
-        RunInfo runCreated = client.createRun(request);
-        System.out.println("CreateRun: "+runCreated);
-        String runId = runCreated.getRunUuid();
-
-        // Log parameters
-        client.logParameter(runId, "min_samples_leaf", "2");
-        client.logParameter(runId, "max_depth", "3");
-
-        // Log metrics
-        client.logMetric(runId, "auc", 2.12);
-        client.logMetric(runId, "accuracy_score", 3.12);
-        client.logMetric(runId, "zero_one_loss", 4.12);
-
-        // Update finished run
-        client.updateRun(runId, "FINISHED", startTime+1001);
-    
-        // Get run details
-        GetRunResponse run = client.getRun(runId);
-        System.out.println("GetRun: "+run);
+        String runId;
+        String sourceName = this.getClass().getSimpleName()+".java";
+        try (RunContext run = new RunContext(client, expId, "MyRun", "LOCAL", sourceName, System.getenv("USER")) ) {
+            runId = run.getRunId();
+            System.out.println("runId="+runId);
+            run.logParameter("min_samples_leaf", "2");
+            run.logMetric("auc", 2.12F);
+            String localFile = "info.txt";
+            try (PrintWriter w = new PrintWriter(localFile)) {
+                w.write("Some information");
+            };
+            run.logArtifact(localFile,"");
+        }
+        Run run = client.getRun(runId);
+        System.out.println("Run:\n"+ObjectUtils.toJson(run));
     }
 }
-
 ```
+For more complete examples of API coverage see:
+* Sample main program [Sampler.java](src/main/java/com/databricks/mlflow/client/samples/Sampler.java)
+* [tests](src/test/java/com/databricks/mlflow/client) such as [ApiClientTest.java](src/test/java/com/databricks/mlflow/client/ApiClientTest.java)
+
 ### Scala Usage
 You can also invoke the MLflow Java client from Scala.
 See the short [ScalaDriver.scala](src/main/scala/com/databricks/mlflow/client/samples/ScalaDriver.scala) and
