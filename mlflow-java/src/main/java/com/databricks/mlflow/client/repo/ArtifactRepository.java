@@ -8,6 +8,7 @@ public interface ArtifactRepository {
 
     void logArtifacts(String localFile, String artifactPath) throws Exception ;
 
+    // TODO: should be FileInfo
     List<String> listArtifacts(String path) throws Exception ;
 
     String downloadArtifacts(String artifactPath) throws Exception ;

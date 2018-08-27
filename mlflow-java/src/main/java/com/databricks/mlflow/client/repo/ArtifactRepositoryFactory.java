@@ -6,7 +6,7 @@ public class ArtifactRepositoryFactory {
 
     public static ArtifactRepository create(String uri) throws Exception {
         if (uri.startsWith("s3:")) {
-            throw new UnsupportedOperationException("S3 support not yet implemented");
+            return new S3ArtifactRepository(uri);
         } else if (uri.contains(":")) {
             throw new UnsupportedOperationException("Unsupported protocol: "+uri);
         } else {

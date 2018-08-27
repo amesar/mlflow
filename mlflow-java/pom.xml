@@ -6,6 +6,7 @@
     <scala.version>2.11.12</scala.version>
     <httpclient.version>4.5.6</httpclient.version>
     <git-commit.version>2.2.4</git-commit.version>
+    <aws-java-sdk-s3-version>1.11.393</aws-java-sdk-s3-version>
     <mlflow-version>0.4.2</mlflow-version>
     <protobuf.version>3.6.0</protobuf.version>
     <scalapb.version>0.6.7</scalapb.version>
@@ -35,6 +36,11 @@
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
       <version>${httpclient.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-s3</artifactId>
+        <version>${aws-java-sdk-s3-version}</version>
     </dependency>
     <dependency>
       <groupId>pl.project13.maven</groupId>
