@@ -19,9 +19,9 @@ public class ApiClient {
         httpCaller = new HttpCaller(apiUri);
     }
 
-    public ApiClient(String baseApiUri, String user, String password) throws Exception {
+    public ApiClient(String baseApiUri, String token) throws Exception {
         String apiUri = baseApiUri + "/" + basePath;
-        httpCaller = new HttpCaller(apiUri, user, password);
+        httpCaller = new HttpCaller(apiUri, token);
     }
 
     public void setVerbose(boolean verbose) {
