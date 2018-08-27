@@ -20,12 +20,29 @@ public class Experiment {
     public String getArtifactLocation() { return artifactLocation; }
     public void setArtifactLocation(String artifactLocation) { this.artifactLocation = artifactLocation; }
 
+    @JsonProperty("lifecycle_stage")
+    private String lifecycle_stage; 
+    public String getLifecycleStage() { return lifecycle_stage; }
+    public void setLifecycleStage(String lifecycle_stage) { this.lifecycle_stage = lifecycle_stage; }
+
+    @JsonProperty("last_update_time")
+    private String lastUpdateTime; 
+    public String getLastUpdateTime() { return lastUpdateTime; }
+    public void setLastUpdateTime(String lastUpdateTime) { this.lastUpdateTime = lastUpdateTime; }
+
+    @JsonProperty("creation_time")
+    private String creationTime; 
+    public String getCreationTime() { return creationTime; }
+    public void setCreationTime(String creationTime) { this.creationTime = creationTime; }
+
     @Override
     public String toString() {
         return
               "experimentId=" + experimentId 
             + " name=" + name 
             + " artifactLocation=" + artifactLocation 
+            + " lifecycle_stage=" + lifecycle_stage 
+            + " lastUpdateTime=" + lastUpdateTime 
         ;
     }
 }
