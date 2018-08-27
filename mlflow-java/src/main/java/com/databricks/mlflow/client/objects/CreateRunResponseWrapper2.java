@@ -8,10 +8,17 @@ public class CreateRunResponseWrapper2 {
     public RunInfo getInfo() { return info; }
     public void setInfo(RunInfo info) { this.info = info; }
 
+    @JsonProperty("data")
+    private RunData data; 
+    public RunData getData() { return data; }
+    public void setData(RunData data) { this.data = data; }
+
     @Override
     public String toString() {
         return
-              "info=" + info 
+              "[info=" + info 
+              + " data=" + data
+              + "]"
         ;
     }
 }
