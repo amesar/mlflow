@@ -59,6 +59,15 @@ public class RunInfo {
     public String getArtifactUri() { return artifactUri; }
     public void setArtifactUri(String artifactUri) { this.artifactUri = artifactUri; }
 
+    @JsonProperty("entry_point_name")
+    private String entryPointName; 
+    public String getEntryPointName() { return entryPointName; }
+    public void setEntryPointName(String entryPointName) { this.entryPointName = entryPointName; }
+
+    private List<RunTag> runTags = Collections.emptyList();
+    public List<RunTag> getRunTags() { return runTags; }
+    public void setRunTags(List<RunTag> runTags) { this.runTags = runTags; }
+
     @Override
     public String toString() {
         return
@@ -73,6 +82,8 @@ public class RunInfo {
             + " startTime=" + startTime 
             + " endTime=" + endTime 
             + " artifactUri=" + artifactUri 
+            + " entryPointName=" + entryPointName 
+            + " #runTags=" + runTags.size() 
             + "]"
         ;
     }
