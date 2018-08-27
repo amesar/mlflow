@@ -37,7 +37,7 @@ public class RunContext implements AutoCloseable {
 
     public void logArtifact(String localFile, String artifactPath) throws Exception {
         if (repo == null) {
-            throw new UnsupportedOperationException("Cannot logArtifact() because no repo");
+            throw new UnsupportedOperationException("Cannot logArtifact() because no repo registered for "+artifactPath);
         }
         repo.logArtifact(localFile, artifactPath);
     }
