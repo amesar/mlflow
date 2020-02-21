@@ -91,6 +91,23 @@ def _resolve_experiment_id(experiment_name=None, experiment_id=None):
 
     return _get_experiment_id()
 
+def _get_tag(run, tag_name):
+    tag_val = run.data.tags.get(tag_name)
+    if tag_val is None:
+        raise Exception(f"Missing tag '{tag_name}' for run {run.info.run_id}")
+    return tag_val
+
+def _resolve_runs_uri(uri):
+    from mlflow.utils import mlflow_tags
+    client = tracking.MlflowClient()
+    toks = uri.split("/")
+    if len(toks) < 2:
+        raise Exception("Bad runs URI")
+    run_id = toks[1]
+    run = client.get_run(run_id)
+    uri = _get_tag(run, mlflow_tags.MLFLOW_SOURCE_NAME)
+    version = _get_tag(run, mlflow_tags.MLFLOW_GIT_COMMIT)
+    return uri
 
 def _run(uri, experiment_id, entry_point="main", version=None, parameters=None,
          backend=None, backend_config=None, use_conda=True,
@@ -99,6 +116,8 @@ def _run(uri, experiment_id, entry_point="main", version=None, parameters=None,
     Helper that delegates to the project-running method corresponding to the passed-in backend.
     Returns a ``SubmittedRun`` corresponding to the project run.
     """
+    if uri.startswith("runs:"):
+        uri = _resolve_runs_uri(uri)
 
     parameters = parameters or {}
     work_dir = _fetch_project(uri=uri, force_tempdir=False, version=version)
