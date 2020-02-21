@@ -2,24 +2,28 @@ from abc import abstractmethod
 
 import os
 import signal
+import logging
 
-from mlflow.entities.run_status import RunStatus
-from mlflow.utils.logging_utils import eprint
+from mlflow.entities import RunStatus
+
+_logger = logging.getLogger(__name__)
 
 
 class SubmittedRun(object):
     """
-    Class wrapping a MLflow project run (e.g. a subprocess running an entry point
-    command or a Databricks Job run) and exposing methods for waiting on / cancelling the run.
+    Wrapper around an MLflow project run (e.g. a subprocess running an entry point
+    command or a Databricks job run) and exposing methods for waiting on and cancelling the run.
     This class defines the interface that the MLflow project runner uses to manage the lifecycle
-    of runs launched in different environments (e.g. runs launched locally / on Databricks).
+    of runs launched in different environments (e.g. runs launched locally or on Databricks).
 
     ``SubmittedRun`` is not thread-safe. That is, concurrent calls to wait() / cancel()
     from multiple threads may inadvertently kill resources (e.g. local processes) unrelated to the
     run.
 
-    Note: Subclasses of ``SubmittedRun`` are expected to expose a ```run_id`` member containing the
-    run's MLflow run ID.
+    NOTE:
+
+        Subclasses of ``SubmittedRun`` must expose a ``run_id`` member containing the
+        run's MLflow run ID.
     """
     @abstractmethod
     def wait(self):
@@ -46,6 +50,11 @@ class SubmittedRun(object):
         """
         pass
 
+    @property
+    @abstractmethod
+    def run_id(self):
+        pass
+
 
 class LocalSubmittedRun(SubmittedRun):
     """
@@ -54,8 +63,12 @@ class LocalSubmittedRun(SubmittedRun):
     """
     def __init__(self, run_id, command_proc):
         super(LocalSubmittedRun, self).__init__()
-        self.run_id = run_id
+        self._run_id = run_id
         self.command_proc = command_proc
+
+    @property
+    def run_id(self):
+        return self._run_id
 
     def wait(self):
         return self.command_proc.wait() == 0
@@ -73,9 +86,10 @@ class LocalSubmittedRun(SubmittedRun):
             except OSError:
                 # The child process may have exited before we attempted to terminate it, so we
                 # ignore OSErrors raised during child process termination
-                eprint("Failed to terminate child process (PID %s) corresponding to MLflow "
-                       "run with ID %s. The process may have already "
-                       "exited." % (self.command_proc.pid, self.run_id))
+                _logger.info(
+                    "Failed to terminate child process (PID %s) corresponding to MLflow "
+                    "run with ID %s. The process may have already exited.",
+                    self.command_proc.pid, self._run_id)
             self.command_proc.wait()
 
     def _get_status(self):

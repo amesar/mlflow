@@ -1,114 +1,185 @@
 #!/usr/bin/env python
+
 import mock
 import numpy
 import pytest
 
-from databricks_cli.configure.provider import DatabricksConfig
-from mlflow.utils import rest_utils
-from mlflow.utils.rest_utils import NumpyEncoder
+from mlflow.exceptions import MlflowException, RestException
+from mlflow.pyfunc.scoring_server import NumpyEncoder
+from mlflow.utils.rest_utils import http_request, http_request_safe, \
+    MlflowHostCreds, _DEFAULT_HEADERS, call_endpoint
+from mlflow.protos.service_pb2 import GetRun
+from tests import helper_functions
 
 
-@mock.patch('databricks_cli.configure.provider.get_config')
-def test_databricks_params_token(get_config):
-    get_config.return_value = \
-        DatabricksConfig("host", None, None, "mytoken", insecure=False)
-    params = rest_utils.get_databricks_http_request_kwargs_or_fail()
-    assert params == {
-        'hostname': 'host',
-        'headers': {
-            'Authorization': 'Bearer mytoken'
-        },
-        'verify': True,
-    }
+def test_well_formed_json_error_response():
+    with mock.patch('requests.request') as request_mock:
+        host_only = MlflowHostCreds("http://my-host")
+        response_mock = mock.MagicMock()
+        response_mock.status_code = 400
+        response_mock.text = "{}"  # well-formed JSON error response
+        request_mock.return_value = response_mock
+
+        response_proto = GetRun.Response()
+        with pytest.raises(RestException):
+            call_endpoint(host_only, '/my/endpoint', 'GET', "", response_proto)
 
 
-@mock.patch('databricks_cli.configure.provider.get_config')
-def test_databricks_params_user_password(get_config):
-    get_config.return_value = \
-        DatabricksConfig("host", "user", "pass", None, insecure=False)
-    params = rest_utils.get_databricks_http_request_kwargs_or_fail()
-    assert params == {
-        'hostname': 'host',
-        'headers': {
-            'Authorization': 'Basic dXNlcjpwYXNz'
-        },
-        'verify': True,
-    }
+@pytest.mark.parametrize("response_mock", [
+    helper_functions.create_mock_response(400, "Error message but not a JSON string"),
+    helper_functions.create_mock_response(400, ""),
+    helper_functions.create_mock_response(400, None)
+])
+def test_malformed_json_error_response(response_mock):
+    with mock.patch('requests.request') as request_mock:
+        host_only = MlflowHostCreds("http://my-host")
+        request_mock.return_value = response_mock
 
-
-@mock.patch('databricks_cli.configure.provider.get_config')
-def test_databricks_params_no_verify(get_config):
-    get_config.return_value = \
-        DatabricksConfig("host", "user", "pass", None, insecure=True)
-    params = rest_utils.get_databricks_http_request_kwargs_or_fail()
-    assert params['verify'] is False
-
-
-@mock.patch('databricks_cli.configure.provider.ProfileConfigProvider')
-def test_databricks_params_custom_profile(ProfileConfigProvider):
-    mock_provider = mock.MagicMock()
-    mock_provider.get_config.return_value = \
-        DatabricksConfig("host", "user", "pass", None, insecure=True)
-    ProfileConfigProvider.return_value = mock_provider
-    params = rest_utils.get_databricks_http_request_kwargs_or_fail("profile")
-    assert params['verify'] is False
-    ProfileConfigProvider.assert_called_with("profile")
-
-
-@mock.patch('databricks_cli.configure.provider.ProfileConfigProvider')
-def test_databricks_params_throws_errors(ProfileConfigProvider):
-    # No hostname
-    mock_provider = mock.MagicMock()
-    mock_provider.get_config.return_value = \
-        DatabricksConfig(None, "user", "pass", None, insecure=True)
-    ProfileConfigProvider.return_value = mock_provider
-    with pytest.raises(Exception):
-        rest_utils.get_databricks_http_request_kwargs_or_fail()
-
-    # No authentication
-    mock_provider = mock.MagicMock()
-    mock_provider.get_config.return_value = \
-        DatabricksConfig("host", None, None, None, insecure=True)
-    ProfileConfigProvider.return_value = mock_provider
-    with pytest.raises(Exception):
-        rest_utils.get_databricks_http_request_kwargs_or_fail()
+        response_proto = GetRun.Response()
+        with pytest.raises(MlflowException):
+            call_endpoint(host_only, '/my/endpoint', 'GET', "", response_proto)
 
 
 @mock.patch('requests.request')
-@mock.patch('databricks_cli.configure.provider.get_config')
-def test_databricks_http_request_integration(get_config, request):
-    """Confirms that the databricks http request params can in fact be used as an HTTP request"""
-    def confirm_request_params(**kwargs):
-        assert kwargs == {
-            'method': 'PUT',
-            'url': 'host/api/2.0/clusters/list',
-            'headers': {
-                'Authorization': 'Basic dXNlcjpwYXNz'
-            },
-            'verify': True,
-            'json': {'a': 'b'}
-        }
-        http_response = mock.MagicMock()
-        http_response.status_code = 200
-        http_response.text = '{"OK": "woo"}'
-        return http_response
-    request.side_effect = confirm_request_params
-    get_config.return_value = \
-        DatabricksConfig("host", "user", "pass", None, insecure=False)
+def test_http_request_hostonly(request):
+    host_only = MlflowHostCreds("http://my-host")
+    response = mock.MagicMock()
+    response.status_code = 200
+    request.return_value = response
+    http_request(host_only, '/my/endpoint')
+    request.assert_called_with(
+        url='http://my-host/my/endpoint',
+        verify=True,
+        headers=_DEFAULT_HEADERS,
+    )
 
-    response = rest_utils.databricks_api_request('clusters/list', 'PUT',
-                                                 json={'a': 'b'})
-    assert response == {'OK': 'woo'}
+
+@mock.patch('requests.request')
+def test_http_request_cleans_hostname(request):
+    # Add a trailing slash, should be removed.
+    host_only = MlflowHostCreds("http://my-host/")
+    response = mock.MagicMock()
+    response.status_code = 200
+    request.return_value = response
+    http_request(host_only, '/my/endpoint')
+    request.assert_called_with(
+        url='http://my-host/my/endpoint',
+        verify=True,
+        headers=_DEFAULT_HEADERS,
+    )
+
+
+@mock.patch('requests.request')
+def test_http_request_with_basic_auth(request):
+    host_only = MlflowHostCreds("http://my-host", username='user', password='pass')
+    response = mock.MagicMock()
+    response.status_code = 200
+    request.return_value = response
+    http_request(host_only, '/my/endpoint')
+    headers = dict(_DEFAULT_HEADERS)
+    headers['Authorization'] = 'Basic dXNlcjpwYXNz'
+    request.assert_called_with(
+        url='http://my-host/my/endpoint',
+        verify=True,
+        headers=headers,
+    )
+
+
+@mock.patch('requests.request')
+def test_http_request_with_token(request):
+    host_only = MlflowHostCreds("http://my-host", token='my-token')
+    response = mock.MagicMock()
+    response.status_code = 200
+    request.return_value = response
+    http_request(host_only, '/my/endpoint')
+    headers = dict(_DEFAULT_HEADERS)
+    headers['Authorization'] = 'Bearer my-token'
+    request.assert_called_with(
+        url='http://my-host/my/endpoint',
+        verify=True,
+        headers=headers,
+    )
+
+
+@mock.patch('requests.request')
+def test_http_request_with_insecure(request):
+    host_only = MlflowHostCreds("http://my-host", ignore_tls_verification=True)
+    response = mock.MagicMock()
+    response.status_code = 200
+    request.return_value = response
+    http_request(host_only, '/my/endpoint')
+    request.assert_called_with(
+        url='http://my-host/my/endpoint',
+        verify=False,
+        headers=_DEFAULT_HEADERS,
+    )
+
+
+@mock.patch('requests.request')
+def test_429_retries(request):
+    host_only = MlflowHostCreds("http://my-host", ignore_tls_verification=True)
+
+    class MockedResponse(object):
+        def __init__(self, status_code):
+            self.status_code = status_code
+            self.text = "mocked text"
+
+    request.side_effect = [MockedResponse(x) for x in (429, 200)]
+    assert http_request(host_only, '/my/endpoint', max_rate_limit_interval=0).status_code == 429
+    request.side_effect = [MockedResponse(x) for x in (429, 200)]
+    assert http_request(host_only, '/my/endpoint', max_rate_limit_interval=1).status_code == 200
+    request.side_effect = [MockedResponse(x) for x in (429, 429, 200)]
+    assert http_request(host_only, '/my/endpoint', max_rate_limit_interval=1).status_code == 429
+    request.side_effect = [MockedResponse(x) for x in (429, 429, 200)]
+    assert http_request(host_only, '/my/endpoint', max_rate_limit_interval=2).status_code == 200
+    request.side_effect = [MockedResponse(x) for x in (429, 429, 200)]
+    assert http_request(host_only, '/my/endpoint', max_rate_limit_interval=3).status_code == 200
+    # Test that any non 429 code is returned
+    request.side_effect = [MockedResponse(x) for x in (429, 404, 429, 200)]
+    assert http_request(host_only, '/my/endpoint').status_code == 404
+    # Test that retries work as expected
+    request.side_effect = [MockedResponse(x) for x in (429, 503, 429, 200)]
+    with pytest.raises(MlflowException, match="failed to return code 200"):
+        http_request(host_only, '/my/endpoint', retries=1)
+    request.side_effect = [MockedResponse(x) for x in (429, 503, 429, 200)]
+    assert http_request(host_only, '/my/endpoint', retries=2).status_code == 200
+
+
+@mock.patch('requests.request')
+def test_http_request_wrapper(request):
+    host_only = MlflowHostCreds("http://my-host", ignore_tls_verification=True)
+    response = mock.MagicMock()
+    response.status_code = 200
+    request.return_value = response
+    http_request_safe(host_only, '/my/endpoint')
+    request.assert_called_with(
+        url='http://my-host/my/endpoint',
+        verify=False,
+        headers=_DEFAULT_HEADERS,
+    )
+    response.status_code = 400
+    response.text = ""
+    request.return_value = response
+    with pytest.raises(MlflowException, match="Response body"):
+        http_request_safe(host_only, '/my/endpoint')
+    response.text = \
+        '{"error_code": "RESOURCE_DOES_NOT_EXIST", "message": "Node type not supported"}'
+    request.return_value = response
+    with pytest.raises(RestException, match="RESOURCE_DOES_NOT_EXIST: Node type not supported"):
+        http_request_safe(host_only, '/my/endpoint')
 
 
 def test_numpy_encoder():
     test_number = numpy.int64(42)
     ne = NumpyEncoder()
     defaulted_val = ne.default(test_number)
-    assert defaulted_val is 42
+    assert defaulted_val == 42
 
 
 def test_numpy_encoder_fail():
+    if not hasattr(numpy, "float128"):
+        pytest.skip("numpy on exit"
+                    "this platform has no float128")
     test_number = numpy.float128
     with pytest.raises(TypeError):
         ne = NumpyEncoder()

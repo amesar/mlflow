@@ -1,5 +1,8 @@
 module.exports = {
-  'extends': 'airbnb-base',
+  'extends': [
+    'airbnb-base',
+    'react-app',
+  ],
   'parser': 'babel-eslint',
   'plugins': [
     'react',
@@ -14,6 +17,7 @@ module.exports = {
   'env': {
     'es6': true,
     'browser': true,
+    'jest': true,
   },
   'globals': {
     'GridStackUI': true,
@@ -33,7 +37,7 @@ module.exports = {
       },
     },
     'react': {
-      'version': '0.14.8',
+      'version': 'detect',
     },
   },
   'rules': {
@@ -49,7 +53,7 @@ module.exports = {
     'callback-return': 2,
     'camelcase': "off",
     'class-methods-use-this': 0,
-    'comma-dangle': "off",
+    'comma-dangle': [2, "always-multiline"],
     'comma-spacing': 2,
     'comma-style': 2,
     'computed-property-spacing': 2,
@@ -94,7 +98,7 @@ module.exports = {
     'import/no-extraneous-dependencies': [2, { 'devDependencies': true }],
     'import/no-internal-modules': 0,
     'import/no-mutable-exports': 2,
-    'import/no-named-as-default': 2,
+    'import/no-named-as-default': 0,
     'import/no-named-as-default-member': 2,
     'import/no-namespace': 2,
     'import/no-nodejs-modules': 2,
@@ -115,7 +119,7 @@ module.exports = {
     'keyword-spacing': 2,
     'linebreak-style': 2,
     'lines-around-comment': 0,
-    'max-depth': [2, 3],
+    'max-depth': [2, 4],
     'max-len': ['error', 100, 2, {
       'ignoreUrls': false,
       'ignoreComments': false,
@@ -123,7 +127,7 @@ module.exports = {
       'ignoreStrings': false,
       'ignoreTemplateLiterals': false,
     }],
-    'max-lines': [2, 750],
+    'max-lines': [2, 1000],
     'max-nested-callbacks': 2,
     'max-params': [2, 8],
     'max-statements': 0,
@@ -197,7 +201,7 @@ module.exports = {
     'no-multiple-empty-lines': 2,
     'no-negated-condition': 0,
     'no-nested-ternary': "off",
-    'no-new': 2,
+    'no-new': 0,
     'no-new-func': 2,
     'no-new-object': 2,
     'no-new-require': 2,
@@ -209,7 +213,7 @@ module.exports = {
     'no-param-reassign': 2,
     'no-path-concat': 2,
     'no-plusplus': 0,
-    'no-process-env': 2,
+    'no-process-env': 0,
     'no-process-exit': 2,
     'no-proto': 2,
     'no-prototype-builtins': 0,

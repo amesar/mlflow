@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# MLFlow documentation build configuration file, created by
+# MLflow documentation build configuration file, created by
 # cookiecutter pipproject
 #
 # This file is execfile()d with the current directory set to its
@@ -20,6 +20,9 @@ import os
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../..'))
+sys.path.insert(0, os.path.abspath('.'))
+
+from languagesections import *
 
 # -- General configuration ------------------------------------------------
 
@@ -32,6 +35,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
+    'sphinx_click.ext',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -50,7 +54,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'MLflow'
-copyright = 'Databricks 2018. All rights reserved'
+copyright = 'Databricks 2020. All rights reserved'
 author = 'Databricks'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -124,7 +128,7 @@ html_theme_path = ["../theme/"]
 html_theme = 'mlflow'
 html_favicon = "_static/favicon.ico"
 
-    
+
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
@@ -225,16 +229,16 @@ htmlhelp_basename = 'MLflowdoc'
 
 latex_elements = {
 # The paper size ('letterpaper' or 'a4paper').
-#'papersize': 'letterpaper',
+# 'papersize': 'letterpaper',
 
 # The font size ('10pt', '11pt' or '12pt').
-#'pointsize': '10pt',
+# 'pointsize': '10pt',
 
 # Additional stuff for the LaTeX preamble.
-#'preamble': '',
+# 'preamble': '',
 
 # Latex figure (float) alignment
-#'figure_align': 'htbp',
+# 'figure_align': 'htbp',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
@@ -301,3 +305,15 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
+
+# Enable nitpicky mode to log warnings for broken references
+nitpicky = True
+nitpick_ignore = [
+    # Ignore "parent class reference not found" errors for subclasses of ``object``
+    ('py:class', 'object'),
+]
+
+linkcheck_ignore = [
+    # Ignore local URLs when validating external links
+    r'http://localhost:\d+/?',
+]
